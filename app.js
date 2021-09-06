@@ -10,6 +10,9 @@ const passport = require('passport');
 
 const indexRouter = require('./routes/index');
 const usersRouter = require('./routes/users');
+const catelistsRouter = require('./routes/catelists.routes');
+const categroupsRouter = require('./routes/categroups.routes');
+const catesRouter = require('./routes/cates.routes');
 
 //config passport in here local|jwt|google|facebook
 require('./middlewares/passport');
@@ -42,6 +45,9 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
 app.use('/user', usersRouter);
+app.use('/cate-list', catelistsRouter);
+app.use('/cate-group', categroupsRouter);
+app.use('/cate', catesRouter);
 
 // catch 404 and forward to error handler
 app.use(function (req, res, next) {
