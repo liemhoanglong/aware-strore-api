@@ -37,7 +37,38 @@ module.exports = {
                 const token = jwt.sign(JSON.stringify(user), process.env.ACCESS_TOKEN_KEY);
                 return res.json({
                     user,
-                    token
+                    token,
+                    msg: 'Access granted'
+                });
+            });
+        })(req, res);
+    },
+    adminLogin: async (req, res, next) => {
+        passport.authenticate('local', { session: false }, (err, user, info) => {
+            if (err) {
+                return next(err);
+            }
+            if (!user) {
+                return res.status(400).json({
+                    err: info.message,
+                });
+            }
+            req.login(user, { session: false }, (err) => {
+                if (err) {
+                    res.status(400).json({
+                        err
+                    });
+                }
+                // generate a signed json web token with the contents of user object and return it in the response
+                if (!user.isAdmin)
+                    return res.status(400).json({
+                        err: 'Access denied',
+                    });
+                const token = jwt.sign(JSON.stringify(user), process.env.ACCESS_TOKEN_KEY);
+                return res.json({
+                    user,
+                    token,
+                    msg: 'Access granted'
                 });
             });
         })(req, res);

@@ -25,10 +25,7 @@ const productSchema = mongoose.Schema({
             type: Number,
             default: 0
         },
-        postedDate: {
-            type: Date,
-            default: Date.now()
-        },
+        info: String
     }],
     brand: {
         type: mongoose.Schema.Types.ObjectId,
@@ -48,6 +45,10 @@ const productSchema = mongoose.Schema({
     cate: [{
         type: mongoose.Types.ObjectId,
         ref: "cate"
+    }],
+    rate: [{
+        type: mongoose.Types.ObjectId,
+        ref: "rate"
     }],
 });
 

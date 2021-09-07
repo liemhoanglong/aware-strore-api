@@ -1,8 +1,8 @@
 var mongoose = require('mongoose');
 
-const genreSchema = mongoose.Schema({
-    content: {
-        type: String,
+const rateSchema = mongoose.Schema({
+    score: {
+        type: Number,
         required: true
     },
     authorId: {
@@ -23,4 +23,4 @@ const genreSchema = mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Genre', genreSchema, 'Genre');
+module.exports = mongoose.model('rate', rateSchema, 'rate');

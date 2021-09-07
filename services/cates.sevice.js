@@ -2,11 +2,13 @@ const cateModel = require('../model/cate.model');
 
 module.exports = {
 	getAll: () => {
-		let res = cateModel.find();
+		let res = cateModel.find()
+		// .populate({ path: "belongCategroup" });
 		return res
 	},
 	getOne: (id) => {
-		return res = cateModel.findById(id);
+		return res = cateModel.findById(id)
+		// .populate({ path: "belongCategroup" });
 	},
 	create: async (name, belongCategroup) => {
 		const temp = new cateModel({

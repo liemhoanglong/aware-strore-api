@@ -10,5 +10,6 @@ router.get('/profile', userAuth, userController.getProfile); //need login
 router.post('/register', userController.register);
 router.put('/edit-profile', userAuth, userController.update); //need login
 router.post('/login', userController.login);
+router.post('/admin-login', userController.adminLogin);
 
 module.exports = router;

@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 
+const SIZE = ['S', 'M', 'L'];
 const usersSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -31,6 +32,19 @@ const usersSchema = new mongoose.Schema({
         type: String,
         default: ""
     },
+    cart: [{
+        productId: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "product"
+        },
+        size: {
+            type: String,
+            enum: SIZE
+        },
+        quantity: Number
+    }],
+    totalQuantity: Number,
+    totalPrice: Number
 });
 
 module.exports = mongoose.model('user', usersSchema, 'user');
