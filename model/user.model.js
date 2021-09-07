@@ -8,8 +8,14 @@ const usersSchema = new mongoose.Schema({
         unique: true,
         lowercase: true
     },
+    name: {
+        type: String,
+        required: true,
+        default: ""
+    },
     password: {
         type: String,
+        required: true,
         default: ""
     },
     isLocalLogin: {

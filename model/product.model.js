@@ -6,34 +6,35 @@ const productSchema = mongoose.Schema({
         type: String,
         required: true,
     },
-    authorId: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "user"
-    },
-    postedDate: {
-        type: Date,
-        default: Date.now()
+    price: {
+        type: Number,
+        default: 0,
     },
     size: [{
         name: {
             type: String,
-            required: true,
-            unique: true,
             enum: SIZE
         },
         quantity: {
             type: Number,
             default: 0
         },
-        info: String
+        info: {
+            type: String,
+            default: ''
+        }
     }],
     brand: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "brand"
     },
-    imageList: {
-        type: Array
-    },
+    imageList: [{
+        type: String
+    }],
+    colors: [{
+        type: mongoose.Types.ObjectId,
+        ref: "color"
+    }],
     catelist: [{
         type: mongoose.Types.ObjectId,
         ref: "catelist"
@@ -46,10 +47,18 @@ const productSchema = mongoose.Schema({
         type: mongoose.Types.ObjectId,
         ref: "cate"
     }],
-    rate: [{
-        type: mongoose.Types.ObjectId,
-        ref: "rate"
-    }],
+    status: { // 1 available, 0 empty
+        type: Number,
+        default: 1,
+    },
+    isDelete: { // 1 delete
+        type: Number,
+        default: 0,
+    },
+    postedDate: {
+        type: Date,
+        default: Date.now()
+    },
 });
 
 module.exports = mongoose.model('product', productSchema, 'product');

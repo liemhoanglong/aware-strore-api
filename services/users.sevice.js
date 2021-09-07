@@ -13,12 +13,13 @@ module.exports = {
 	getUserByUsername: (username) => {
 		return User.findOne({ username });
 	},
-	create: async (username, password) => {
+	create: async (username, name, password) => {
 		const saltRound = 10;
 		const salt = bcrypt.genSaltSync(saltRound);
 		const passwordHash = bcrypt.hashSync(password, salt);
 		const newUser = new User({
 			username,
+			name,
 			password: passwordHash
 		});
 		return await newUser.save();
@@ -28,7 +29,8 @@ module.exports = {
 		let updateUser = await User.findOne({ username: userInfo.username });
 		if (updateUser) {
 			if (bcrypt.compareSync(userInfo.password, updateUser.password)) {
-				// updateUser.fullname = userInfo.fullname;
+				updateUser.name = userInfo.name;
+				//password
 				return await updateUser.save();
 			} else {
 				return -1;

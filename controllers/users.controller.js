@@ -74,9 +74,9 @@ module.exports = {
         })(req, res);
     },
     register: async (req, res) => {
-        const { username, password } = req.body;
+        const { username, name, password } = req.body;
         // check params
-        if (!username || !password) {
+        if (!username || !name || !password) {
             res.status(400).json({
                 err: 'Please enter all required fields'
             });
@@ -86,7 +86,7 @@ module.exports = {
             return res.status(400).json({ err: 'This username already exists!' });
         }
         try {
-            const user = await userService.create(username, password);
+            const user = await userService.create(username, name, password);
             res.json({ msg: 'Register success!', username: user.username });
         } catch (err) {
             console.log(err);
