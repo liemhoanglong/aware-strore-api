@@ -128,12 +128,30 @@ module.exports = {
             if (user === 0)
                 res.status(400).json({ err: 'This username does not exists!' });
             else {
-                await mailer.sendPass(req.body.username, user.newpass);
+                mailer.sendPass(req.body.username, user.newpass);
                 res.json({ user });
             }
         } catch (err) {
             console.log(err);
             res.status(400).json({ err: 'Can not reset password!' });
+        }
+    },
+
+    //========================>> USER's CART <<======================== 
+    getCart: async (req, res) => {
+        const { cart, totalPriceRaw } = await userService.getCartDetail(req.user.username);
+        res.json({ cart, totalPriceRaw });
+    },
+    updateCart: async (req, res) => {
+        try {
+            const user = await userService.updateCart(req.body.cart, req.user.username);
+            if (user === 0)
+                res.status(400).json({ err: 'This username does not exists!' });
+            else
+                res.json({ user });
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({ err: 'Can not update userCart!' });
         }
     },
 }

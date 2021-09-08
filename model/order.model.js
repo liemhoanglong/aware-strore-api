@@ -1,9 +1,12 @@
 var mongoose = require('mongoose');
 
 const SIZE = ['S', 'M', 'L'];
-const STATUS = ['-1', '0', '1']; //-1: Cancel, 0: Pending, 1: Completed
+const STATUS = [-1, 0, 1]; //-1: Cancel, 0: Pending, 1: Completed
 const orderSchema = mongoose.Schema({
-    userId: String,
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "user"
+    },
     items: [{
         productId: {
             type: mongoose.Schema.Types.ObjectId,
@@ -13,20 +16,26 @@ const orderSchema = mongoose.Schema({
             type: String,
             enum: SIZE
         },
-        quantity: Number
+        quantity: Number,
+        color: String
     }],
     feeShipping: Number,
-    totalQuantity: Number,
     totalPrice: Number,
-    name: String,
     phone: String,
-    status: String,
     address: String,
+    note: {
+        type: String,
+        default: ''
+    },
     status: {
         type: Number,
-        enum: STATUS
+        enum: STATUS,
+        default: 0
     },
-    payment: String,
+    payment: {
+        type: String,
+        default: ''
+    },
     orderedDate: {
         type: Date,
         default: Date.now()

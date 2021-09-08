@@ -5,18 +5,45 @@ module.exports = {
 		let res = orderModel.find();
 		return res
 	},
-	getOne: (id) => {
-		return res = orderModel.findById(id);
+	getMyOrder: (userId) => {
+		let res = orderModel.find({ userId });
+		return res
 	},
-	create: async (name) => {
-		const temp = new orderModel({
-			name
+	getOne: (id) => {
+		return res = orderModel.findById(id).populate({
+			path: 'items',
+			populate: {
+				path: 'productId',
+				model: 'product',
+				// populate: {
+				// 	path: 'colors',
+				// 	model: 'color'
+				// }
+			}
 		});
+	},
+	create: async (data) => {
+		const temp = new orderModel(data);
 		return await temp.save();
 	},
-	update: async (id, name) => {
+	cancelOrder: async (userId, id) => {
 		let temp = await orderModel.findById(id);
-		temp.name = name;
+		if (JSON.stringify(temp.userId) === JSON.stringify(userId)) {
+			//need to check this is your order is complete or cancel
+			console.log(temp.status)
+			if (temp.status === 1)
+				return 1;
+			if (temp.status === -1)
+				return -1;
+			temp.status = -1;
+			return await temp.save();
+		}
+		else
+			return;
+	},
+	updateStatus: async (id, status) => {
+		let temp = await orderModel.findById(id);
+		temp.status = status;
 		return await temp.save();
 	},
 	delete: (id) => {//need to check cate group belong

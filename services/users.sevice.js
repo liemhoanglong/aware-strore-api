@@ -71,5 +71,47 @@ module.exports = {
 		}
 		return 0;
 	},
+
+	//========================>> USER's CART <<========================
+	getCart: async (username) => {
+		//check username is exist
+		let user = await User.findOne({ username })
+		return user.cart;
+	},
+	getCartDetail: async (username) => {
+		//check username is exist
+		let user = await User.findOne({ username }).populate({
+			path: 'cart',
+			populate: {
+				path: 'productId',
+				model: 'product',
+				// populate: {
+				// 	path: 'colors',
+				// 	model: 'color'
+				// }
+			}
+		});
+		let cart = user.cart;
+
+		//Cal totalPriceRaw on cart
+		let totalPriceRaw = 0;
+		for (let i = 0; i < cart.length; i++) {
+			totalPriceRaw += cart[i].productId.price * cart[i].quantity
+		}
+
+		return {
+			cart,
+			totalPriceRaw
+		};
+	},
+	updateCart: async (cart, username) => {
+		//check username is exist
+		let updateUser = await User.findOne({ username });
+		if (updateUser) {
+			updateUser.cart = cart;
+			return await updateUser.save();
+		}
+		return 0;
+	},
 }
 

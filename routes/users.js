@@ -14,4 +14,8 @@ router.put('/forgot-pass', userController.forgotPass); //forgot pass
 router.post('/login', userController.login);
 router.post('/admin-login', userController.adminLogin);
 
+//========================>> USER's CART <<======================== 
+router.get('/get-cart', userAuth, userController.getCart); // need login
+router.put('/update-cart', userAuth, userController.updateCart); //need login
+
 module.exports = router;

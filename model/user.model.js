@@ -47,10 +47,12 @@ const usersSchema = new mongoose.Schema({
             type: String,
             enum: SIZE
         },
-        quantity: Number
+        quantity: Number,
+        color: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "color"
+        },
     }],
-    totalQuantity: Number,
-    totalPrice: Number
 });
 
 module.exports = mongoose.model('user', usersSchema, 'user');
