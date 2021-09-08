@@ -24,16 +24,49 @@ module.exports = {
 		});
 		return await newUser.save();
 	},
-	update: async (userInfo) => {
+	update: async (userInfo, username) => {
 		//check username is exist
-		let updateUser = await User.findOne({ username: userInfo.username });
+		let updateUser = await User.findOne({ username });
 		if (updateUser) {
 			if (bcrypt.compareSync(userInfo.password, updateUser.password)) {
 				updateUser.name = userInfo.name;
-				//password
 				return await updateUser.save();
-			} else {
-				return -1;
+			}
+			return -1;
+		}
+		return 0;
+	},
+	changePass: async (userInfo, username) => {
+		//check username is exist
+		let updateUser = await User.findOne({ username });
+		if (updateUser) {
+			if (bcrypt.compareSync(userInfo.password, updateUser.password)) {
+				const saltRound = 10;
+				const salt = bcrypt.genSaltSync(saltRound);
+				updateUser.password = bcrypt.hashSync(userInfo.newpass, salt);
+				return await updateUser.save();
+			}
+			return -1;
+		}
+		return 0;
+	},
+	resetPass: async (username) => {
+		//check username is exist
+		let updateUser = await User.findOne({ username });
+		if (updateUser) {
+			//create new password
+			let newpass = '';
+			const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+			const charactersLength = characters.length;
+			for (let i = 0; i < 18; i++)
+				newpass += characters.charAt(Math.floor(Math.random() * charactersLength));
+			const saltRound = 10;
+			const salt = bcrypt.genSaltSync(saltRound);
+			updateUser.password = bcrypt.hashSync(newpass, salt);
+			const res = await updateUser.save();
+			return {
+				res,
+				newpass
 			}
 		}
 		return 0;

@@ -2,6 +2,7 @@ const passport = require('passport');
 const jwt = require('jsonwebtoken');
 
 const userService = require('../services/users.sevice');
+const mailer = require('../utils/mailer');
 
 module.exports = {
     getAll: async (req, res) => {
@@ -95,7 +96,7 @@ module.exports = {
     },
     update: async (req, res) => {
         try {
-            const user = await userService.update(req.body);
+            const user = await userService.update(req.body, req.user.username);
             if (user === 0)
                 res.status(400).json({ err: 'This username does not exists!' });
             else if (user === -1)
@@ -105,6 +106,34 @@ module.exports = {
         } catch (err) {
             console.log(err);
             res.status(400).json({ err: 'Can not update user!' });
+        }
+    },
+    changePass: async (req, res) => {
+        try {
+            const user = await userService.changePass(req.body, req.user.username);
+            if (user === 0)
+                res.status(400).json({ err: 'This username does not exists!' });
+            else if (user === -1)
+                res.status(400).json({ err: 'Wrong password' });
+            else
+                res.json({ user });
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({ err: 'Can not change password!' });
+        }
+    },
+    forgotPass: async (req, res) => {
+        try {
+            const user = await userService.resetPass(req.body.username);
+            if (user === 0)
+                res.status(400).json({ err: 'This username does not exists!' });
+            else {
+                await mailer.sendPass(req.body.username, user.newpass);
+                res.json({ user });
+            }
+        } catch (err) {
+            console.log(err);
+            res.status(400).json({ err: 'Can not reset password!' });
         }
     },
 }
