@@ -24,6 +24,16 @@ const productSchema = mongoose.Schema({
             default: ''
         }
     }],
+    sold: [{
+        name: {
+            type: String,
+            enum: SIZE
+        },
+        quantity: {
+            type: Number,
+            default: 0
+        }
+    }],
     brand: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "brand"

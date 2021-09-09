@@ -32,7 +32,7 @@ module.exports = {
         // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     },
-    sendOrderToCutomer: async (email, orderId) => {
+    sendNewOrderToCutomer: async (email, orderId) => {
         let transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.com',
             port: 587,
@@ -51,7 +51,7 @@ module.exports = {
             html: `<center><h1>Thanks for your order #${orderId}</h1></center><h2>Hello, ${email}<br/>Your order has been received and is being processed.</h2>`, // html body
         });
     },
-    sendOrderToAdmin: async (orderId) => {
+    sendNewOrderToAdmin: async (orderId) => {
         let transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.com',
             port: 587,
@@ -87,6 +87,25 @@ module.exports = {
             to: email, // list of receivers
             subject: `${status}`, // Subject line
             html: `<center><h1>You have a order #${orderId}</h1></center><h2>Hello, ${email}<br/>${status}!</h2>`, // html body
+        });
+    },
+    sendOrderCancelToAdmin: async (orderId, status) => {
+        let transporter = nodemailer.createTransport({
+            host: 'smtp.ethereal.com',
+            port: 587,
+            service: 'gmail',
+            secure: false,
+            auth: {
+                user: process.env.USER_GMAIL,
+                pass: process.env.PASS_GMAIL,
+            },
+        });
+        // send mail with defined transport object
+        let info = await transporter.sendMail({
+            from: '"Aware store" <awarestore@gmail.com>', // sender address
+            to: "liemhoanglong@gmail.com", // list of receivers
+            subject: `The order ${status}`, // Subject line
+            html: `<center><h1>You have a order #${orderId} ${status}</h1></center>`, // html body
         });
     }
 }

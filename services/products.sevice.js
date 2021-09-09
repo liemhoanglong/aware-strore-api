@@ -70,23 +70,23 @@ module.exports = {
 				),
 		}
 	},
-	create: async (name, price, size, brand, imageList, catelist, categroup, cate, colors) => {
-		const temp = new productModel({
-			name, price, size, brand, imageList, catelist, categroup, cate, colors
-		});
+	create: async (data) => {
+		const temp = new productModel(data);
 		return await temp.save();
 	},
 	update: async (id, data) => {
+		let { name, price, size, brand, imageList, catelist, categroup, cate, colors, sold } = data;
 		let temp = await productModel.findById(id);
-		temp.name = name;
-		temp.price = price;
-		temp.size = size;
-		temp.brand = brand;
-		temp.imageList = imageList;
-		temp.catelist = catelist;
-		temp.categroup = categroup;
-		temp.cate = cate;
-		temp.colors = colors;
+		if (name) temp.name = name;
+		if (price) temp.price = price;
+		if (size) temp.size = size;
+		if (brand) temp.brand = brand;
+		if (imageList) temp.imageList = imageList;
+		if (catelist) temp.catelist = catelist;
+		if (categroup) temp.categroup = categroup;
+		if (cate) temp.cate = cate;
+		if (colors) temp.colors = colors;
+		if (sold) temp.sold = sold;
 		return await temp.save();
 	},
 	delete: async (id) => {
