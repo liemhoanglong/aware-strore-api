@@ -8,11 +8,26 @@ const mongoose = require("mongoose");
 const cors = require('cors');
 const passport = require('passport');
 
-var indexRouter = require('./routes/index');
-var usersRouter = require('./routes/users');
+const indexRouter = require('./routes/index');
+const usersRouter = require('./routes/users');
+const colorsRouter = require('./routes/colors.routes');
+const catelistsRouter = require('./routes/catelists.routes');
+const categroupsRouter = require('./routes/categroups.routes');
+const catesRouter = require('./routes/cates.routes');
+const brandsRouter = require('./routes/brands.routes');
+const productsRouter = require('./routes/products.routes');
+const ordersRouter = require('./routes/orders.routes');
+const ratesRouter = require('./routes/rates.routes');
+const commentsRouter = require('./routes/brands.routes');
 
-var app = express();
+//config passport in here local|jwt|google|facebook
+require('./middlewares/passport');
+
+const app = express();
 app.use(cors());
+
+//passport middlewares
+app.use(passport.initialize());
 
 // connect database
 mongoose
@@ -35,15 +50,24 @@ app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use('/', indexRouter);
-app.use('/users', usersRouter);
+app.use('/user', usersRouter);
+app.use('/color', colorsRouter);
+app.use('/cate-list', catelistsRouter);
+app.use('/cate-group', categroupsRouter);
+app.use('/cate', catesRouter);
+app.use('/brand', brandsRouter);
+app.use('/product', productsRouter);
+app.use('/order', ordersRouter);
+app.use('/rate', ratesRouter);
+app.use('/comment', commentsRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function (err, req, res, next) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};

@@ -13,6 +13,9 @@ var http = require('http');
  */
 
 var port = normalizePort(process.env.PORT || '3000');
+console.log(`app is running on http://localhost:${port}`)
+console.log('app is running online on https://todo-list-api0.herokuapp.com')
+
 app.set('port', port);
 
 /**
