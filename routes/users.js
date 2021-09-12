@@ -10,7 +10,7 @@ router.get('/profile', userAuth, userController.getProfile); //need login
 router.post('/register', userController.register);
 router.put('/edit-profile', userAuth, userController.update); //need login
 router.put('/change-pass', userAuth, userController.changePass); //need login
-router.put('/forgot-pass', userController.forgotPass); //forgot pass
+router.post('/forgot-pass', userController.forgotPass); //forgot pass
 router.post('/login', userController.login);
 router.post('/admin-login', userController.adminLogin);
 

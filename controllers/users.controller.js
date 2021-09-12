@@ -83,13 +83,19 @@ module.exports = {
                 err: 'Please enter all required fields'
             });
         }
-        const currentUser = await userService.getUserByUsername(username);
-        if (currentUser) {//check username is exist
+        const currentUsername = await userService.getUserByUsername(username);
+        if (currentUsername) {//check username is exist
             return res.status(400).json({ err: 'This username already exists!' });
         }
+
+        const currentUser = await userService.getUserByName(name);
+        if (currentUser) {//check username is exist
+            return res.status(400).json({ err: 'This name already exists!' });
+        }
+
         try {
             const user = await userService.create(username, name, password);
-            res.json({ msg: 'Register success!', username: user.username });
+            res.status(201).json({ msg: 'Register success!', username: user.username });
         } catch (err) {
             console.log(err);
             res.status(400).json({ err: 'Can not create new user!' });
@@ -99,9 +105,9 @@ module.exports = {
         try {
             const user = await userService.update(req.body, req.user.username);
             if (user === 0)
-                res.status(400).json({ err: 'This username does not exists!' });
+                res.json({ err: 'This username does not exists!' });
             else if (user === -1)
-                res.status(400).json({ err: 'Wrong password' });
+                res.json({ err: 'Wrong password' });
             else
                 res.json({ user });
         } catch (err) {
