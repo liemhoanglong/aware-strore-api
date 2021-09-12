@@ -9,6 +9,9 @@ module.exports = {
 		return res = categroupModel.findById(id)
 		// .populate({ path: "belongCatelist" });
 	},
+	getByCatelist: (id) => {
+		return res = categroupModel.find({ belongCatelist: id })
+	},
 	create: async (name, belongCatelist) => {
 		console.log(belongCatelist)
 		const temp = new categroupModel({

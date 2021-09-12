@@ -6,6 +6,7 @@ const rateController = require('../controllers/rates.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', rateController.getAll);
+
 router.get('/:id', rateController.getOne);
 router.post('/', userAuth, adminAuth, rateController.create); //need login with admin
 router.put('/:id', userAuth, adminAuth, rateController.update); //need login with admin
