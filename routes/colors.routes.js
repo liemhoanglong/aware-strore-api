@@ -6,6 +6,7 @@ const colorController = require('../controllers/colors.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', colorController.getAll);
+
 router.get('/:id', colorController.getOne);
 router.post('/', userAuth, adminAuth, colorController.create); //need login with admin
 router.put('/:id', userAuth, adminAuth, colorController.update); //need login with admin

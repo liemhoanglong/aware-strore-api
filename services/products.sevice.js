@@ -28,28 +28,32 @@ module.exports = {
 		const executeQuery = Object.assign(initQuery, query);
 		executeQuery.page--;
 		executeQuery.name = new RegExp(escapeRegex(executeQuery.name), 'gi');
-		executeQuery.status = executeQuery.status ? Number(executeQuery.status) : 1;
+		// executeQuery.status = executeQuery.status === '' ? 1 : Number(executeQuery.status);
 		let res = productModel.find({
 			name: executeQuery.name,
 			isDelete: 0,
 			price: {
 				$gte: Number(executeQuery.minprice ? executeQuery.minprice : 0),
 				$lte: Number(executeQuery.maxprice ? executeQuery.maxprice : 10000000)
-			},
-			status: executeQuery.status,
-		}).populate('colors brand'); // get color name and brand name
-		if (executeQuery.size)
-			res = res.find({ 'size.name': executeQuery.size });
+			}
+		})
+		// .populate('color brand'); // get color name and brand name
+		if (executeQuery.size)//check quantity > 0
+			res = res.find({ 'size': { $elemMatch: { name: executeQuery.size, quantity: { $gt: 0 } } } });
 		if (executeQuery.brand)
 			res = res.find({ brand: executeQuery.brand });
-		if (executeQuery.color)
-			res = res.find({ colors: executeQuery.color });
+		if (executeQuery.color) {
+			console.log('color --------------- ' + executeQuery.color)
+			res = res.find({ 'colors': executeQuery.color });
+		}
 		if (executeQuery.catelist)
 			res = res.find({ catelist: executeQuery.catelist });
 		if (executeQuery.categroup)
 			res = res.find({ categroup: executeQuery.categroup });
 		if (executeQuery.cate)
 			res = res.find({ cate: executeQuery.cate });
+		if (executeQuery.status)
+			res = res.find({ status: executeQuery.status });
 		if (executeQuery.sort) {
 			if (executeQuery.sort == 1) //a->z
 				res = res.sort({ "name": 1 });
