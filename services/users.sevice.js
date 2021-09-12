@@ -13,6 +13,9 @@ module.exports = {
 	getUserByUsername: (username) => {
 		return User.findOne({ username });
 	},
+	getUserByName: (name) => {
+		return User.findOne({ name });
+	},
 	create: async (username, name, password) => {
 		const saltRound = 10;
 		const salt = bcrypt.genSaltSync(saltRound);
