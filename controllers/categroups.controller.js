@@ -9,6 +9,18 @@ module.exports = {
         const data = await categroupService.getOne(req.params.id);
         res.json({ data });
     },
+    getByCatelist: async (req, res) => {
+        const mens = categroupService.getByCatelist('6136342577e31326701a18fd');
+        const ladies = categroupService.getByCatelist('6136343677e31326701a1901');
+        const girls = categroupService.getByCatelist('6136343b77e31326701a1903');
+        const boys = categroupService.getByCatelist('6136346c9f814a47407fae2b');
+        const datamens = await mens;
+        const dataladies = await ladies;
+        const datagirls = await girls;
+        const databoys = await boys;
+        const data = [datamens, dataladies, datagirls, databoys];
+        res.json({ data });
+    },
     create: async (req, res) => {
         try {
             const data = await categroupService.create(req.body.name, req.body.belongCatelist);

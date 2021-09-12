@@ -6,6 +6,7 @@ const commentController = require('../controllers/comments.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', commentController.getAll);
+
 router.get('/:id', commentController.getOne);
 router.post('/', userAuth, adminAuth, commentController.create); //need login with admin
 router.put('/:id', userAuth, adminAuth, commentController.update); //need login with admin

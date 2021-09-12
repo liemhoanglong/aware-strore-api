@@ -16,6 +16,7 @@ module.exports = {
             isBlock: req.user.isBlock,
             isLocalLogin: req.user.isLocalLogin,
             avatar: req.user.avatar,
+            cart: req.user.cart,
         });
     },
     login: async (req, res, next) => {
