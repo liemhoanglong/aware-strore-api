@@ -10,7 +10,8 @@ module.exports = {
         res.json({ users });
     },
     getProfile: async (req, res) => {
-        res.json({
+        return res.json({
+            name: req.user.name,
             username: req.user.username,
             isAdmin: req.user.isAdmin,
             isBlock: req.user.isBlock,
@@ -106,13 +107,15 @@ module.exports = {
             const user = await userService.update(req.body, req.user.username);
             if (user === 0)
                 res.json({ err: 'This username does not exists!' });
-            else if (user === -1)
-                res.json({ err: 'Wrong password' });
-            else
-                res.json({ user });
+            else {
+                // let err = ''
+                // if (req.user.username === user.username || req.user.name === user.name)
+                //     err = 'Can not update user. Name/Email exists!';
+                res.json({ name: user.name, username: user.username });
+            }
         } catch (err) {
             console.log(err);
-            res.status(400).json({ err: 'Can not update user!' });
+            res.status(400).json({ err: 'Can not update user.' });
         }
     },
     changePass: async (req, res) => {

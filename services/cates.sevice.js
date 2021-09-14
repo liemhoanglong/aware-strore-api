@@ -6,6 +6,11 @@ module.exports = {
 		// .populate({ path: "belongCategroup" });
 		return res
 	},
+	getByCateGroup: (id) => {
+		let res = cateModel.find()
+			.populate({ path: "belongCategroup", match: { _id: id } });
+		return res
+	},
 	getOne: (id) => {
 		return res = cateModel.findById(id)
 		// .populate({ path: "belongCategroup" });

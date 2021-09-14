@@ -5,6 +5,10 @@ module.exports = {
         const data = await cateService.getAll();
         res.json({ data });
     },
+    getByCateGroup: async (req, res) => {
+        const data = await cateService.getByCateGroup(req.params.id);
+        res.json({ data });
+    },
     getOne: async (req, res) => {
         const data = await cateService.getOne(req.params.id);
         res.json({ data });
