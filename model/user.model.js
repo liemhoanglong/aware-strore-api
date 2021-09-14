@@ -51,7 +51,7 @@ const usersSchema = new mongoose.Schema({
         color: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "color"
-        },
+        }
     }],
 });
 

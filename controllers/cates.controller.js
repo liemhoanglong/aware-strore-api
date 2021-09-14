@@ -9,13 +9,21 @@ module.exports = {
         const data = await cateService.getByCateGroup(req.params.id);
         res.json({ data });
     },
+    getByCategroupAndCatelist: async (req, res) => {
+        const data = await cateService.getByCategroupAndCatelist(req.params.categroup, req.params.catelist);
+        res.json({ data });
+    },
+    getByCatelist: async (req, res) => {
+        const data = await cateService.getByCatelist(req.params.id);
+        res.json({ data });
+    },
     getOne: async (req, res) => {
         const data = await cateService.getOne(req.params.id);
         res.json({ data });
     },
     create: async (req, res) => {
         try {
-            const data = await cateService.create(req.body.name, req.body.belongCategroup);
+            const data = await cateService.create(req.body.name, req.body.belongCategroup, req.body.belongCatelist);
             res.status(201).json({ data });
         }
         catch (err) {
@@ -25,7 +33,7 @@ module.exports = {
     },
     update: async (req, res) => {
         try {
-            const data = await cateService.update(req.params.id, req.body.name, req.body.belongCategroup);
+            const data = await cateService.update(req.params.id, req.body.name, req.body.belongCategroup, req.body.belongCatelist);
             if (data)
                 res.json({ data });
             else
