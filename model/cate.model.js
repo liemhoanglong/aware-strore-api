@@ -10,6 +10,10 @@ const cateSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "categroup",
     }],
+    belongCatelist: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "catelist",
+    }],
 });
 
 module.exports = mongoose.model('cate', cateSchema, 'cate');

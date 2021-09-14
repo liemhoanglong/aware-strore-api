@@ -149,11 +149,12 @@ module.exports = {
 
     //========================>> USER's CART <<======================== 
     getCart: async (req, res) => {
-        const { cart, totalPriceRaw } = await userService.getCartDetail(req.user.username);
-        res.json({ cart, totalPriceRaw });
+        const { cart, totalPriceRaw, totalProducts } = await userService.getCartDetail(req.user.username);
+        res.json({ cart, totalPriceRaw, totalProducts });
     },
     updateCart: async (req, res) => {
         try {
+            console.log(req.body.cart)
             const user = await userService.updateCart(req.body.cart, req.user.username);
             if (user === 0)
                 res.status(400).json({ err: 'This username does not exists!' });
