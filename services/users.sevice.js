@@ -29,15 +29,21 @@ module.exports = {
 	},
 	update: async (userInfo, username) => {
 		//check username is exist
-		let updateUser = await User.findOne({ username });
-		if (updateUser) {
-			if (bcrypt.compareSync(userInfo.password, updateUser.password)) {
-				updateUser.name = userInfo.name;
-				return await updateUser.save();
+		let userNow = User.findOne({ username });// find user now
+		let userWithUsername = User.findOne({ username: userInfo.username });// find user with username
+		let userWithName = User.findOne({ name: userInfo.name });// find user with name
+		let updateUser = await userNow;
+		let checkUsername = await userWithUsername;
+		let checkName = await userWithName;
+		if (userNow) {
+			if (!checkUsername) {
+				updateUser.username = userInfo.username;
 			}
-			return -1;
-		}
-		return 0;
+			if (!checkName) {
+				updateUser.name = userInfo.name;
+			}
+			return await updateUser.save();
+		} else return 0;
 	},
 	changePass: async (userInfo, username) => {
 		//check username is exist

@@ -6,7 +6,7 @@ const cateController = require('../controllers/cates.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', cateController.getAll);
-
+router.get('/by-group/:id', cateController.getByCateGroup);
 router.get('/:id', cateController.getOne);
 router.post('/', userAuth, adminAuth, cateController.create); //need login with admin
 router.put('/:id', userAuth, adminAuth, cateController.update); //need login with admin
