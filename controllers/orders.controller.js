@@ -27,13 +27,15 @@ module.exports = {
             //Cal totalPrice with feeShipping
             totalPrice = totalPriceRaw + feeShipping;
 
-            //save to oder 
+            //save to order 
             order = { feeShipping, totalPrice, phone, address, note };
             order.userId = req.user._id;
             order.items = cart;
 
             const data = await orderService.create(order);
             if (data) {
+                //reset cart to []
+                userService.updateCart(null, req.user.username);
                 mailer.sendNewOrderToCutomer(req.user.username, data._id);
                 mailer.sendNewOrderToAdmin(data._id);
                 res.status(201).json({ data });
