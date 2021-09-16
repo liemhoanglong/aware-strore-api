@@ -154,12 +154,12 @@ module.exports = {
     },
     updateCart: async (req, res) => {
         try {
-            console.log(req.body.cart)
+            // console.log(req.body.cart)
             const user = await userService.updateCart(req.body.cart, req.user.username);
             if (user === 0)
                 res.status(400).json({ err: 'This username does not exists!' });
             else
-                res.json({ user });
+                res.json({ msg: 'Update cart successful!' });
         } catch (err) {
             console.log(err);
             res.status(400).json({ err: 'Can not update userCart!' });
