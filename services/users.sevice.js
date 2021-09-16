@@ -103,15 +103,18 @@ module.exports = {
 				model: 'color',
 			}]
 		});
-		let cart = user.cart;
+		let cart = JSON.parse(JSON.stringify(user.cart));
 
 		//Cal totalPriceRaw on cart
 		//Cal totalProducts on cart
 		let totalPriceRaw = 0;
 		let totalProducts = 0;
-		for (let i = 0; i < cart.length; i++) {
-			totalPriceRaw += cart[i].productId.price * cart[i].quantity;
-			totalProducts += cart[i].quantity;
+		if (cart && cart.length > 0) {
+			for (let i = 0; i < cart.length; i++) {
+				// console.log(cart[i])
+				totalPriceRaw += cart[i].productId.price * cart[i].quantity;
+				totalProducts += cart[i].quantity;
+			}
 		}
 
 		return {

@@ -17,7 +17,10 @@ const orderSchema = mongoose.Schema({
             enum: SIZE
         },
         quantity: Number,
-        color: String
+        color: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "color"
+        }
     }],
     feeShipping: Number,
     totalPrice: Number,
