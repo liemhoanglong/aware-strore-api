@@ -20,10 +20,24 @@ module.exports = {
     create: async (req, res) => {
         let order = {};
         try {
-            const { cart, totalPriceRaw } = await userService.getCartDetail(req.user.username);
-            if (cart.length < 1)
+            let { cart } = await userService.getCartDetail(req.user.username);
+            if (cart && cart.length < 1)
                 return res.status(400).json({ err: 'Your cart is empty!' });
             const { feeShipping, phone, address, note } = req.body;
+
+            //Cal totalPriceRaw
+            //Add price each product
+            let totalPriceRaw = 0;
+            // let totalProducts = 0;
+            if (cart && cart.length > 0) {
+                for (let i = 0; i < cart.length; i++) {
+                    // console.log(cart[i])
+                    cart[i].price = cart[i].productId.price;
+                    totalPriceRaw += cart[i].productId.price * cart[i].quantity;
+                    // totalProducts += cart[i].quantity;
+                }
+            }
+
             //Cal totalPrice with feeShipping
             totalPrice = totalPriceRaw + feeShipping;
 
@@ -35,7 +49,7 @@ module.exports = {
             const data = await orderService.create(order);
             if (data) {
                 //reset cart to []
-                userService.updateCart(null, req.user.username);
+                await userService.updateCart(null, req.user.username);
                 mailer.sendNewOrderToCutomer(req.user.username, data._id);
                 mailer.sendNewOrderToAdmin(data._id);
                 res.status(201).json({ data });
