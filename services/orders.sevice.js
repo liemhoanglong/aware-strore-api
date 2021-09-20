@@ -5,9 +5,32 @@ module.exports = {
 		let res = orderModel.find();
 		return res
 	},
-	getMyOrder: (userId) => {
-		let res = orderModel.find({ userId });
-		return res
+	getMyOrder: async (userId, query) => {
+		const initQuery = {
+			page: 1,
+			limit: 5,
+		}
+		const executeQuery = Object.assign(initQuery, query);
+		executeQuery.page--;
+		let res = await orderModel.find({ userId }).sort({ 'orderedDate': -1 })
+			.populate({
+				path: 'items',
+				populate: [{
+					path: 'productId',
+					model: 'product',
+				}, {
+					path: 'color',
+					model: 'color',
+				}]
+			}).exec();
+		return {
+			count: res.length,
+			orders: res
+				.slice(
+					executeQuery.page * executeQuery.limit,
+					++executeQuery.page * executeQuery.limit,
+				),
+		};
 	},
 	getOne: (id) => {
 		return res = orderModel.findById(id).populate({

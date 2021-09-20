@@ -17,6 +17,7 @@ const orderSchema = mongoose.Schema({
             enum: SIZE
         },
         quantity: Number,
+        price: Number,
         color: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "color"

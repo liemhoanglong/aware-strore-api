@@ -32,7 +32,7 @@ module.exports = {
         // console.log("Preview URL: %s", nodemailer.getTestMessageUrl(info));
         // Preview URL: https://ethereal.email/message/WaQKMgKddxQDoou...
     },
-    sendNewOrderToCutomer: async (email, orderId) => {
+    sendNewOrderToCutomer: async (email, content) => {
         let transporter = nodemailer.createTransport({
             host: 'smtp.ethereal.com',
             port: 587,
@@ -48,7 +48,7 @@ module.exports = {
             from: '"Aware store" <awarestore@gmail.com>', // sender address
             to: email, // list of receivers
             subject: "Aware store received your order", // Subject line
-            html: `<center><h1>Thanks for your order #${orderId}</h1></center><h2>Hello, ${email}<br/>Your order has been received and is being processed.</h2>`, // html body
+            html: content
         });
     },
     sendNewOrderToAdmin: async (orderId) => {
