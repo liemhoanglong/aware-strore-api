@@ -7,7 +7,7 @@ module.exports = {
 		return res
 	},
 	getOne: (id) => {
-		return res = productModel.findById(id).populate('brand colors');
+		return res = productModel.findById(id).populate('brand colors catelist categroup');
 	},
 	getProductsWithConditions: async (query) => {
 		const initQuery = {

@@ -6,8 +6,32 @@ module.exports = {
 		let res = commentModel.find();
 		return res
 	},
+	getRate: async (productId) => {
+		let res = await commentModel.find({ productId });
+		let rate = 0;
+		for (let i = 0; i < res.length; i++) {
+			rate += res[i].star;
+		}
+		return Math.ceil(rate / res.length);
+	},
+	getCommentsByProductId: async (productId, query) => {
+		const initQuery = {
+			page: 1,
+			limit: 4,
+		}
+		const executeQuery = Object.assign(initQuery, query);
+		executeQuery.page--;
+		let res = await commentModel.find({ productId }).populate('authorId');
+		return {
+			count: res.length,
+			comments: res
+				.slice(
+					executeQuery.page * executeQuery.limit,
+					++executeQuery.page * executeQuery.limit,
+				),
+		};
+	},
 	getOneByOrder: (authorId, query) => {
-		console.log(query)
 		return res = commentModel.findOne({
 			authorId,
 			orderId: query.orderId,

@@ -4,7 +4,15 @@ const orderService = require('../services/orders.sevice');
 module.exports = {
     getAll: async (req, res) => {
         const data = await commentService.getAll();
-        res.json({ data });
+        res.json(data);
+    },
+    getRate: async (req, res) => {
+        const data = await commentService.getRate(req.params.id);
+        res.json(data);
+    },
+    getCommentsByProductId: async (req, res) => {
+        const data = await commentService.getCommentsByProductId(req.params.id, req.query);
+        res.json(data);
     },
     getOneByOrder: async (req, res) => {
         const data = await commentService.getOneByOrder(req.user._id, req.query);
@@ -12,7 +20,7 @@ module.exports = {
     },
     getOne: async (req, res) => {
         const data = await commentService.getOne(req.params.id);
-        res.json({ data });
+        res.json(data);
     },
     create: async (req, res) => {
         console.log(req.body)
