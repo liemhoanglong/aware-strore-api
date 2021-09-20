@@ -1,7 +1,7 @@
 var mongoose = require('mongoose');
 
 const SIZE = ['S', 'M', 'L'];
-const STATUS = [-1, 0, 1]; //-1: Cancel, 0: Pending, 1: Completed
+const STATUS = [-1, 0, 1, 2]; //-1: Cancel, 0: Pending, 1: Completed, 2: Delivering
 const orderSchema = mongoose.Schema({
     userId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -21,7 +21,11 @@ const orderSchema = mongoose.Schema({
         color: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "color"
-        }
+        },
+        isReview: {
+            type: Boolean,
+            default: false
+        },
     }],
     feeShipping: Number,
     totalPrice: Number,
