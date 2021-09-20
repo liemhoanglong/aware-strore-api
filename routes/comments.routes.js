@@ -6,10 +6,11 @@ const commentController = require('../controllers/comments.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', commentController.getAll);
+router.get('/order', userAuth, commentController.getOneByOrder);
 
 router.get('/:id', commentController.getOne);
-router.post('/', userAuth, adminAuth, commentController.create); //need login with admin
-router.put('/:id', userAuth, adminAuth, commentController.update); //need login with admin
-router.delete('/:id', userAuth, adminAuth, commentController.delete); //need login with admin
+router.post('/', userAuth, commentController.create); //need login
+router.put('/:id', userAuth, commentController.update); //need login
+router.delete('/:id', userAuth, commentController.delete); //need login
 
 module.exports = router;

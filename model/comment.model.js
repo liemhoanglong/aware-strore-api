@@ -1,9 +1,17 @@
 var mongoose = require('mongoose');
 
-const genreSchema = mongoose.Schema({
+const commentSchema = mongoose.Schema({
+    title: {
+        type: String,
+        default: ""
+    },
     content: {
         type: String,
-        required: true
+        default: ""
+    },
+    star: {
+        type: Number,
+        default: 5
     },
     authorId: {
         type: mongoose.Schema.Types.ObjectId,
@@ -13,9 +21,16 @@ const genreSchema = mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: "product"
     },
-    cartId: {
+    color: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "cart"
+        ref: "color"
+    },
+    size: {
+        type: String,
+    },
+    orderId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "order"
     },
     postedDate: {
         type: Date,
@@ -23,4 +38,4 @@ const genreSchema = mongoose.Schema({
     },
 });
 
-module.exports = mongoose.model('Genre', genreSchema, 'Genre');
+module.exports = mongoose.model('comment', commentSchema, 'comment');

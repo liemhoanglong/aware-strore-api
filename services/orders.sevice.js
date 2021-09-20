@@ -69,6 +69,11 @@ module.exports = {
 		temp.status = status;
 		return await temp.save();
 	},
+	updateIsReview: async (id, index) => {
+		let temp = await orderModel.findById(id);
+		temp.items[index].isReview = true;
+		return await temp.save();
+	},
 	delete: (id) => {//need to check cate group belong
 		return orderModel.deleteOne({ _id: id });
 	},
