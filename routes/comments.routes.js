@@ -6,6 +6,8 @@ const commentController = require('../controllers/comments.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', commentController.getAll);
+router.get('/rate/:id', commentController.getRate);
+router.get('/product/:id', commentController.getCommentsByProductId);
 router.get('/order', userAuth, commentController.getOneByOrder);
 
 router.get('/:id', commentController.getOne);
