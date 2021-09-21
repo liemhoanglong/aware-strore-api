@@ -94,10 +94,10 @@ module.exports = {
 			populate: [{
 				path: 'productId',
 				model: 'product',
-				// populate: {
-				// 	path: 'colors',
-				// 	model: 'color'
-				// }
+				populate: {
+					path: 'colors',
+					model: 'color'
+				}
 			}, {
 				path: 'color',
 				model: 'color',
