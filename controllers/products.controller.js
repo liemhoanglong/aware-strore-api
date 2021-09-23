@@ -10,6 +10,11 @@ module.exports = {
         const data = await productService.getProductsWithConditions(req.query);
         res.json({ data });
     },
+    getProductsWithConditionsAdmin: async (req, res) => {
+        console.log(req.query)
+        const data = await productService.getProductsWithConditionsAdmin(req.query);
+        res.json(data);
+    },
     getOne: async (req, res) => {
         const data = await productService.getOne(req.params.id);
         res.json({ data });
@@ -48,7 +53,7 @@ module.exports = {
         try {
             const data = await productService.delete(req.params.id);
             if (data)
-                res.json({ msg: `Delete product success` });
+                res.status(200).json({ msg: `Product deleted successfully` });
             else
                 res.status(400).json({ err: 'No product matched to delete!' });
         }
