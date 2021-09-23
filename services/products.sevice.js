@@ -74,6 +74,48 @@ module.exports = {
 				),
 		}
 	},
+	getProductsWithConditionsAdmin: async (query) => {
+		const initQuery = {
+			page: 1,
+			limit: 10,
+			name: '',
+			status: '',
+			sort: 0,
+		};
+		const executeQuery = Object.assign(initQuery, query);
+		executeQuery.page--;
+		executeQuery.name = new RegExp(escapeRegex(executeQuery.name), 'gi');
+		// executeQuery.status = executeQuery.status === '' ? 1 : Number(executeQuery.status);
+		let res = productModel.find({
+			name: executeQuery.name,
+			isDelete: 0,
+		})
+			.populate('catelist categroup');
+		if (executeQuery.status)
+			res = res.find({ status: executeQuery.status });
+		if (executeQuery.sort) {
+			if (executeQuery.sort == 1) //a->z
+				res = res.sort({ "name": 1 });
+			else if (executeQuery.sort == 2) //asc-price
+				res = res.sort({ "price": 1 });
+			else if (executeQuery.sort == 3) //desc-price
+				res = res.sort({ "price": -1 });
+			else //date add
+				res = res.sort({ "postedDate": 1 });
+
+		}
+
+		//execute the query above
+		res = await res.exec();
+		return {
+			count: res.length,
+			products: res
+				.slice(
+					executeQuery.page * executeQuery.limit,
+					++executeQuery.page * executeQuery.limit,
+				),
+		}
+	},
 	create: async (data) => {
 		const temp = new productModel(data);
 		return await temp.save();
