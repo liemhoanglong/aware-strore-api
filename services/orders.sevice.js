@@ -19,13 +19,13 @@ module.exports = {
 		const executeQuery = Object.assign(initQuery, query);
 		executeQuery.page--;
 		executeQuery.name = new RegExp(escapeRegex(executeQuery.name), 'gi');
-		let date
-		if (executeQuery.maxdate === '') {
-			date = new Date();
-		} else {
-			date = new Date(executeQuery.maxdate);
-		}
-		executeQuery.maxdate = date.setDate(date.getDate() + 1);
+		executeQuery.mindate = executeQuery.mindate ? executeQuery.mindate : '2021-09-01';
+		let date = executeQuery.maxdate ? new Date(executeQuery.maxdate) : new Date();
+		date.setDate(date.getDate() + 1);//add 1 day
+		executeQuery.maxdate = date.toISOString().slice(0, 10);
+		// executeQuery.maxdate = Number(date) + 24 * 60 * 60 * 1000;
+		console.log(executeQuery.mindate)
+		console.log(executeQuery.maxdate)
 		let res = orderModel.find({
 			code: executeQuery.name,
 			orderedDate: {
@@ -48,7 +48,7 @@ module.exports = {
 
 		//execute the query above
 		//default sort by ordered Date
-		res = await res.sort({ "orderedDate": 1 }).exec();
+		res = await res.sort({ "orderedDate": -1 }).exec();
 		return {
 			count: res.length,
 			orders: res
@@ -88,14 +88,17 @@ module.exports = {
 	getOne: (id) => {
 		return res = orderModel.findById(id).populate({
 			path: 'items',
-			populate: {
+			populate: [{
 				path: 'productId',
 				model: 'product',
 				// populate: {
 				// 	path: 'colors',
 				// 	model: 'color'
 				// }
-			}
+			}, {
+				path: 'color',
+				model: 'color',
+			}]
 		});
 	},
 	create: async (data) => {
@@ -119,7 +122,7 @@ module.exports = {
 	},
 	updateStatus: async (id, status) => {
 		let temp = await orderModel.findById(id);
-		temp.status = status;
+		temp.status = Number(status);
 		return await temp.save();
 	},
 	updateIsReview: async (id, index) => {

@@ -83,7 +83,7 @@ module.exports = {
                     </table>
                     <hr>`;
                 }
-                let content = `<center><h1>Thanks for your order #${data._id}</h1></center>
+                let content = `<center><h1>Thanks for your order #${data.code}</h1></center>
                 <h2>Hello, ${req.user.username} 👋👋👋<br/></h2>
                 <h3>Your order has been received and is being processed.</h3>
                 <hr>
@@ -124,7 +124,7 @@ module.exports = {
                 <h3>🧾&nbsp;Order Details</h3>
                 ${items}`; // html body;
                 mailer.sendNewOrderToCutomer(req.user.username, content);
-                mailer.sendNewOrderToAdmin(data._id);
+                mailer.sendNewOrderToAdmin(data.code);
                 res.status(201).json({ data });
             } else
                 res.status(400).json({ err: 'Create order fail!' });
@@ -142,8 +142,8 @@ module.exports = {
             if (data === -1)
                 res.json({ err: 'Your order has been Cancelled!' });
             else if (data) {
-                mailer.sendOrderStatusToCutomer(req.user.username, data._id, "Your order has been Cancelled");
-                mailer.sendOrderCancelToAdmin(data._id, "has been canceled by customer");
+                mailer.sendOrderStatusToCutomer(req.user.username, data.code, "Your order has been Cancelled");
+                mailer.sendOrderCancelToAdmin(data.code, "has been canceled by customer");
                 res.json({ data });
             }
             else
@@ -159,24 +159,25 @@ module.exports = {
             let status = req.body.status
             //before update status = 1 (Completed) must to check each product in order is availability in stock
             //after update status = 1 (Completed) must go to each product in order update sold
-            if (status === 1) {
+            if (status == 1) {
                 // 1. Check each product in order is availability
                 const order = await orderService.getOne(req.params.id);
 
                 // 1.1. Check order is Completed?
-                console.log(order.status)
+                // console.log(order.status)
                 if (order.status === 1) return res.json({ err: 'Your order has been Completed' });
-
                 const { items } = order;
-                console.log(items)
+                // console.log(items[0].productId.size)
+                // console.log(items[0].productId.sold)
                 let flag = 1;
-                let productInvailid = [];
+                let productInvailid = '';
                 let productSold = [];
                 for (let i = 0; i < items.length; i++) {
                     let sizeIndex = items[i].size === 'S' ? 0 : items[i].size === 'M' ? 1 : 2;
                     if (items[i].productId.size[sizeIndex].quantity - items[i].productId.sold[sizeIndex].quantity < items[i].quantity) {
                         flag = 0;
-                        productInvailid.push(items[i].productId._id);
+                        let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + ' pcs';
+                        productInvailid += productInvailid ? ', ' + msg : msg;
                     }
                     // save array product sold before edit
                     productSold[i] = items[i].productId.sold;
@@ -188,12 +189,17 @@ module.exports = {
                     // console.log(productSold[i])
                 }
 
-                // 2. if 1 of item is not availabile return
-                if (!flag) return res.json({ err: 'Your order can not Completed cause some items is out of stock!', productInvailid })
+                // 2. if flag eq 1 of item is not availabile return
+                if (!flag) return res.status(400).json({ err: `Your order can not completed cause "${productInvailid}" not enough!` })
 
                 // 3. update each product.sold in order
                 for (let i = 0; i < items.length; i++) {
-                    productService.update(items[i].productId._id, { sold: productSold[i] });
+                    let status = '1';
+                    // console.log(items[i].productId.size[0].quantity + items[i].productId.size[1].quantity + items[i].productId.size[2].quantity)
+                    // console.log(items[i].productId.sold[0].quantity + items[i].productId.sold[1].quantity + items[i].productId.sold[2].quantity)
+                    if (items[i].productId.size[0].quantity + items[i].productId.size[1].quantity + items[i].productId.size[2].quantity === items[i].productId.sold[0].quantity + items[i].productId.sold[1].quantity + items[i].productId.sold[2].quantity)
+                        status = '0';
+                    productService.update(items[i].productId._id, { sold: productSold[i], status });
                 }
 
                 // 4. update order
@@ -202,18 +208,18 @@ module.exports = {
                 // 5. send mail
                 status = "Your order has been Completed";
                 if (data) {
-                    mailer.sendOrderStatusToCutomer(req.user.username, data._id, status);
-                    res.json({ data });
+                    mailer.sendOrderStatusToCutomer(req.user.username, data.code, status);
+                    res.json({ msg: `Order updated successfully` });
                 }
                 else
                     res.status(400).json({ err: 'No order matched to update!' });
             }
             else {
                 const data = await orderService.updateStatus(req.params.id, status);
-                status = status === -1 ? "Your order has been Cancelled" : "Your order is being processed";
+                status = status == -1 ? "Your order has been Cancelled" : status == 2 ? "Your order is being Delivered" : "Your order is being Processed";
                 if (data) {
-                    mailer.sendOrderStatusToCutomer(req.user.username, data._id, status);
-                    res.json({ data });
+                    mailer.sendOrderStatusToCutomer(req.user.username, data.code, status);
+                    res.json({ msg: `Order updated successfully` });
                 }
                 else
                     res.status(400).json({ err: 'No order matched to update!' });
