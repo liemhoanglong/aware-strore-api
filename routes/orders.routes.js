@@ -6,6 +6,7 @@ const orderController = require('../controllers/orders.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', userAuth, adminAuth, orderController.getAll);//need login with admin
+router.get('/admin-search', orderController.getOrdersWithConditionsAdmin);
 router.get('/my', userAuth, orderController.getMyOrder);//need login with admin
 router.get('/:id', orderController.getOne);
 router.post('/create', userAuth, orderController.create); //need login with admin
