@@ -9,6 +9,11 @@ module.exports = {
         const data = await orderService.getAll();
         res.json({ data });
     },
+    getOrdersWithConditionsAdmin: async (req, res) => {
+        console.log(req.query)
+        const data = await orderService.getOrdersWithConditionsAdmin(req.query);
+        res.json(data);
+    },
     getMyOrder: async (req, res) => {
         const data = await orderService.getMyOrder(req.user._id, req.query)
         res.json(data);
@@ -45,6 +50,7 @@ module.exports = {
             order = { feeShipping, totalPrice, phone, address, note };
             order.userId = req.user._id;
             order.items = cart;
+            order.code = (new Date().getTime()).toString(16);
 
             const data = await orderService.create(order);
             if (data) {
