@@ -120,7 +120,7 @@ module.exports = {
 		return await temp.save();
 	},
 	update: async (id, data) => {
-		let { name, price, size, brand, imageList, catelist, categroup, cate, colors, sold } = data;
+		let { name, price, size, brand, imageList, catelist, categroup, cate, colors, sold, status } = data;
 		let temp = await productModel.findById(id);
 		if (name) temp.name = name;
 		if (price) temp.price = price;
@@ -132,6 +132,7 @@ module.exports = {
 		if (cate) temp.cate = cate;
 		if (colors) temp.colors = colors;
 		if (sold) temp.sold = sold;
+		if (status) temp.status = Number(status);
 		return await temp.save();
 	},
 	delete: async (id) => {
