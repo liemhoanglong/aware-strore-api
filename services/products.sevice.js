@@ -102,7 +102,6 @@ module.exports = {
 				res = res.sort({ "price": -1 });
 			else //date add
 				res = res.sort({ "postedDate": 1 });
-
 		}
 
 		//execute the query above
