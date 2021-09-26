@@ -22,11 +22,11 @@ module.exports = {
     create: async (req, res) => {
         try {
             console.log(req.body)
-            let { name, price, size, brand, imageList, catelist, categroup, cate, colors } = req.body;
+            let { name, price, info, size, brand, imageList, catelist, categroup, cate, colors } = req.body;
 
             //init sold value
             let sold = [{ name: 'S', quantity: 0 }, { name: 'M', quantity: 0 }, { name: 'L', quantity: 0 }];
-            let product = { name, price, size, sold, brand, imageList, catelist, categroup, cate, colors };
+            let product = { name, price, info, size, sold, brand, imageList, catelist, categroup, cate, colors };
 
             const data = await productService.create(product);
             res.status(201).json({ data });

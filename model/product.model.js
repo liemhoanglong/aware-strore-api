@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-const SIZE = ['S', 'M', 'L'];
+// const SIZE = ['S', 'M', 'L'];
 const productSchema = mongoose.Schema({
     name: {
         type: String,
@@ -10,24 +10,24 @@ const productSchema = mongoose.Schema({
         type: Number,
         default: 0,
     },
+    info: {
+        type: String,
+        default: '',
+    },
     size: [{
         name: {
             type: String,
-            enum: SIZE
+            // enum: SIZE
         },
         quantity: {
             type: Number,
             default: 0
-        },
-        info: {
-            type: String,
-            default: ''
         }
     }],
     sold: [{
         name: {
             type: String,
-            enum: SIZE
+            // enum: SIZE
         },
         quantity: {
             type: Number,
