@@ -23,9 +23,6 @@ module.exports = {
 		let date = executeQuery.maxdate ? new Date(executeQuery.maxdate) : new Date();
 		date.setDate(date.getDate() + 1);//add 1 day
 		executeQuery.maxdate = date.toISOString().slice(0, 10);
-		// executeQuery.maxdate = Number(date) + 24 * 60 * 60 * 1000;
-		console.log(executeQuery.mindate)
-		console.log(executeQuery.maxdate)
 		let res = orderModel.find({
 			code: executeQuery.name,
 			orderedDate: {
