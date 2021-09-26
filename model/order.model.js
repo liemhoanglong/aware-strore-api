@@ -1,6 +1,6 @@
 var mongoose = require('mongoose');
 
-const SIZE = ['S', 'M', 'L'];
+// const SIZE = ['S', 'M', 'L'];
 const STATUS = [-1, 0, 1, 2]; //-1: Cancel, 0: Pending, 1: Completed, 2: Delivering
 const orderSchema = mongoose.Schema({
     code: {
@@ -19,7 +19,7 @@ const orderSchema = mongoose.Schema({
         },
         size: {
             type: String,
-            enum: SIZE
+            // enum: SIZE
         },
         quantity: Number,
         price: Number,

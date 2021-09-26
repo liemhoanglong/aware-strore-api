@@ -47,10 +47,11 @@ module.exports = {
             totalPrice = totalPriceRaw + feeShipping;
 
             //save to order 
-            order = { feeShipping, totalPrice, phone, address, note };
+            let orderedDate = new Date()
+            order = { feeShipping, totalPrice, phone, address, note, orderedDate };
             order.userId = req.user._id;
             order.items = cart;
-            order.code = (new Date().getTime()).toString(16);
+            order.code = (orderedDate.getTime()).toString(16);
 
             const data = await orderService.create(order);
             if (data) {
@@ -173,7 +174,8 @@ module.exports = {
                 let productInvailid = '';
                 let productSold = [];
                 for (let i = 0; i < items.length; i++) {
-                    let sizeIndex = items[i].size === 'S' ? 0 : items[i].size === 'M' ? 1 : 2;
+                    let sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                    // let sizeIndex = items[i].size === 'S' ? 0 : items[i].size === 'M' ? 1 : 2;
                     if (items[i].productId.size[sizeIndex].quantity - items[i].productId.sold[sizeIndex].quantity < items[i].quantity) {
                         flag = 0;
                         let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + ' pcs';
@@ -183,7 +185,6 @@ module.exports = {
                     productSold[i] = items[i].productId.sold;
                     // console.log(productSold[i])
                     // edit only the size index in array product sold
-                    productSold[i][sizeIndex].name = items[i].size;
                     productSold[i][sizeIndex].quantity = items[i].quantity;
                     // console.log('--------------------+++++++++++++--------------------')
                     // console.log(productSold[i])

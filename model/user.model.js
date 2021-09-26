@@ -1,6 +1,6 @@
 const mongoose = require('mongoose');
 
-const SIZE = ['S', 'M', 'L'];
+// const SIZE = ['S', 'M', 'L'];
 const usersSchema = new mongoose.Schema({
     username: {
         type: String,
@@ -45,7 +45,7 @@ const usersSchema = new mongoose.Schema({
         },
         size: {
             type: String,
-            enum: SIZE
+            // enum: SIZE
         },
         quantity: Number,
         color: {

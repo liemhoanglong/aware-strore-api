@@ -120,10 +120,11 @@ module.exports = {
 		return await temp.save();
 	},
 	update: async (id, data) => {
-		let { name, price, size, brand, imageList, catelist, categroup, cate, colors, sold, status } = data;
+		let { name, price, info, size, brand, imageList, catelist, categroup, cate, colors, sold, status } = data;
 		let temp = await productModel.findById(id);
 		if (name) temp.name = name;
 		if (price) temp.price = price;
+		if (info) temp.info = info;
 		if (size) temp.size = size;
 		if (brand) temp.brand = brand;
 		if (imageList) temp.imageList = imageList;
