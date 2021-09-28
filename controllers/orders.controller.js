@@ -25,33 +25,41 @@ module.exports = {
     create: async (req, res) => {
         let order = {};
         try {
-            let { cart } = await userService.getCartDetail(req.user.username);
+            const { cart } = await userService.getCartDetail(req.user.username);
             if (!cart || (cart && cart.length < 1))
                 return res.status(400).json({ err: 'Your cart is empty!' });
             const { feeShipping, phone, address, note } = req.body;
 
             // 1. Before create order must to check each product in order is availability in stock
-            let flag = 1;
+            // 1.1 Remove duplicate product info
+            // *********mutation*********
+            let listProduct = [cart[0].productId];
+            for (let i = 1; i < cart.length; i++) {
+                for (let j = 0; j < listProduct.length; j++) {
+                    if (cart[i].productId._id !== listProduct[j]._id) {
+                        listProduct.push(cart[i].productId);
+                    }
+                }
+            }
+            let sizeIndex = 0;
+            let flag = 0;
             let productInvailid = '';
             let productSold = [];
             for (let i = 0; i < cart.length; i++) {
-                let sizeIndex = cart[i].productId.size.findIndex((element) => element.name === cart[i].size);
-                if (cart[i].productId.size[sizeIndex].quantity - cart[i].productId.sold[sizeIndex].quantity < cart[i].quantity) {
-                    flag = 0;
-                    let msg = cart[i].productId.name + ' - (' + cart[i].size + ') - (' + cart[i].color.name + ') - x ' + cart[i].quantity + ' pcs';
-                    productInvailid += productInvailid ? ' and ' + msg : msg;
-                }
                 // save array product sold before edit 
                 // *********mutation*********
-                productSold[i] = cart[i].productId.sold;
-                // console.log(productSold[i])
-                // edit only the sizeIndex in array product sold
+                productSold.push(listProduct.find(e => e._id === cart[i].productId._id).sold);
+                sizeIndex = cart[i].productId.size.findIndex((element) => element.name === cart[i].size);
                 productSold[i][sizeIndex].quantity += cart[i].quantity;
-                // console.log('--------------------+++++++++++++--------------------')
-                // console.log(productSold[i])
+                // console.log(productSold[i][sizeIndex].quantity)
+                if (cart[i].productId.size[sizeIndex].quantity < productSold[i][sizeIndex].quantity) {
+                    flag = 1;
+                    let msg = cart[i].productId.name + ' - (' + cart[i].size + ') - (' + cart[i].color.name + ') - x ' + cart[i].quantity + 'pcs';
+                    productInvailid += productInvailid ? ' and ' + msg : msg;
+                }
             }
             // if flag === 0 => one or some item(s) in cart is not availabile
-            if (!flag) return res.status(400).json({ err: `Your order can not create! Because ${productInvailid} are not enough!` })
+            if (flag) return res.status(400).json({ err: `Your order can not create! Because ${productInvailid} are not enough!` })
 
             // 2. Go to each product in order update quantity sold
             // if sum of size quantity === sum of sold quantity will update status to 0 (mean out of stock)
@@ -65,7 +73,9 @@ module.exports = {
                 }
                 if (sizeQty === soldQty)
                     status = '0';
+                // add await to remove version error
                 productService.update(cart[i].productId._id, { sold: productSold[i], status });
+                // await productService.update(cart[i].productId._id, { sold: productSold[i], status });
             }
 
             // 3. Create order
@@ -165,7 +175,7 @@ module.exports = {
 
                 mailer.sendNewOrderToCutomer(req.user.username, content);
                 mailer.sendNewOrderToAdmin(data.code);
-                res.status(201).json({ data });
+                res.status(201).json({ msg: 'Create order successful!' });
             } else
                 res.status(400).json({ err: 'Create order fail!' });
         }
@@ -177,7 +187,7 @@ module.exports = {
     cancelOrder: async (req, res) => {
         try {
             // 1. Update status order to -1 
-            // 2. Update product.sold
+            // 2. Update each product
             const orderData = orderService.getOne(req.params.id);
             const order = await orderService.cancelOrder(req.user._id, req.params.id);
             if (order === 1)
@@ -186,19 +196,32 @@ module.exports = {
                 res.json({ err: 'Your order has been Cancelled!' });
             else if (order) {
                 const { items, code } = await orderData;
+                // 2.1 Remove duplicate product info
+                // *********mutation*********
+                let listProduct = [items[0].productId];
+                for (let i = 1; i < items.length; i++) {
+                    for (let j = 0; j < listProduct.length; j++) {
+                        if (items[i].productId._id !== listProduct[j]._id) {
+                            listProduct.push(items[i].productId);
+                        }
+                    }
+                }
+
+                // 2.2 Update product.sold
                 let sizeIndex = 0;
-                let productSold = [];
+                let productSold;
                 for (let i = 0; i < items.length; i++) {
                     // *********mutation*********
-                    productSold[i] = items[i].productId.sold;
+                    productSold = listProduct.find(e => e._id === items[i].productId._id).sold;
                     sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
-                    productSold[i][sizeIndex].quantity -= items[i].quantity;
-                    productService.update(items[i].productId._id, { sold: productSold[i], status: 1 });
+                    productSold[sizeIndex].quantity -= items[i].quantity;
+                    await productService.update(items[i].productId._id, { sold: productSold, status: 1 });
                 }
-                //send mail
-                mailer.sendOrderStatusToCutomer(req.user.username, code, "Your order has been Cancelled");
-                mailer.sendOrderCancelToAdmin(code, "  been canceled by customer");
-                res.json({ order });
+
+                // 2.3 send mail
+                mailer.sendOrderStatusToCutomer(req.user.username, code, "Your cancellation was successful");
+                mailer.sendOrderCancelToAdmin(code, " been canceled by customer");
+                res.json({ msg: 'Cancel order successful!' });
             }
             else
                 res.status(400).json({ err: 'Can not find your order!' });
