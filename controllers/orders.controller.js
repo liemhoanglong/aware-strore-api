@@ -32,7 +32,7 @@ module.exports = {
 
             // 1. Before create order must to check each product in order is availability in stock
             // 1.1 Remove duplicate product info
-            // *********mutation*********
+            // *********mutation listProduct*********
             let listProduct = [cart[0].productId];
             for (let i = 1; i < cart.length; i++) {
                 for (let j = 0; j < listProduct.length; j++) {
@@ -47,7 +47,7 @@ module.exports = {
             let productSold = [];
             for (let i = 0; i < cart.length; i++) {
                 // save array product sold before edit 
-                // *********mutation*********
+                // *********mutation productSold*********
                 productSold.push(listProduct.find(e => e._id === cart[i].productId._id).sold);
                 sizeIndex = cart[i].productId.size.findIndex((element) => element.name === cart[i].size);
                 productSold[i][sizeIndex].quantity += cart[i].quantity;
@@ -197,7 +197,7 @@ module.exports = {
             else if (order) {
                 const { items, code } = await orderData;
                 // 2.1 Remove duplicate product info
-                // *********mutation*********
+                // *********mutation listProduct*********
                 let listProduct = [items[0].productId];
                 for (let i = 1; i < items.length; i++) {
                     for (let j = 0; j < listProduct.length; j++) {
@@ -211,7 +211,7 @@ module.exports = {
                 let sizeIndex = 0;
                 let productSold;
                 for (let i = 0; i < items.length; i++) {
-                    // *********mutation*********
+                    // *********mutation productSold*********
                     productSold = listProduct.find(e => e._id === items[i].productId._id).sold;
                     sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
                     productSold[sizeIndex].quantity -= items[i].quantity;
@@ -236,74 +236,185 @@ module.exports = {
             let status = req.body.status
             //before update status = 0 (pending) must to check each product in order is availability in stock
             //after update status = 0 (pending) must go to each product in order update sold
+            const order = await orderService.getOne(req.params.id);
+            //**************update to pending status
             if (status == 0) {
+                console.log('---->Pending order')
                 // 1. Check each product in order is availability
-                const order = await orderService.getOne(req.params.id);
                 // 1.1. Check order is Completed?
                 // console.log(order.status)
-                if (order.status === 1) return res.json({ err: 'Your order has been Completed' });
-                const { items } = order;
-                // console.log(items[0].productId.size)
-                // console.log(items[0].productId.sold)
-                let flag = 1;
-                let productInvailid = '';
-                let productSold = [];
-                let sizeIndex = 0;
-                for (let i = 0; i < items.length; i++) {
-                    sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
-                    // let sizeIndex = items[i].size === 'S' ? 0 : items[i].size === 'M' ? 1 : 2;
-                    if (items[i].productId.size[sizeIndex].quantity - items[i].productId.sold[sizeIndex].quantity < items[i].quantity) {
-                        flag = 0;
-                        let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + 'pcs';
-                        productInvailid += productInvailid ? ', ' + msg : msg;
+                if (order.status == 0) return res.json({ err: 'This order has already been Pending' });
+                if (order.status > 0) {//on delivery or complete
+                    //update status
+                    const data = await orderService.updateStatus(req.params.id, status);
+                    if (data) {
+                        mailer.sendOrderStatusToCutomer(order.userId.username, data.code, "Your order is Pending!");
+                        res.json({ msg: `Order updated successfully` });
                     }
-                    // save array product sold before edit
-                    productSold[i] = items[i].productId.sold;
-                    // console.log(productSold[i])
-                    // edit only the sizeIndex in array product sold
-                    productSold[i][sizeIndex].quantity += items[i].quantity;
-                    // console.log('--------------------+++++++++++++--------------------')
-                    // console.log(productSold[i])
                 }
-
-                // 2. if flag === 0 one or some of item(s) is not availabile
-                if (!flag) return res.status(400).json({ err: `Your order can not completed cause "${productInvailid}" not enough!` })
-
-                // 3. update each product.sold in order
-                for (let i = 0; i < items.length; i++) {
-                    let status = '1';
-                    let sizeQty = 0;
-                    let soldQty = 0;
-                    for (let j = 0; j < items[i].productId.size.length; j++) {
-                        sizeQty += items[i].productId.size[j].quantity;
-                        soldQty += items[i].productId.sold[j].quantity;
+                else {//cancellation order 
+                    //update status pending + update each product 
+                    //---------------------------------------------------------------------------
+                    const { items } = order;
+                    // 1.1 Remove duplicate product info
+                    // *********mutation listProduct*********
+                    let listProduct = [items[0].productId];
+                    for (let i = 1; i < items.length; i++) {
+                        for (let j = 0; j < listProduct.length; j++) {
+                            if (items[i].productId._id !== listProduct[j]._id) {
+                                listProduct.push(items[i].productId);
+                            }
+                        }
                     }
-                    if (sizeQty === soldQty)
-                        status = '0';
-                    productService.update(items[i].productId._id, { sold: productSold[i], status });
-                }
+                    let sizeIndex = 0;
+                    let flag = 0;
+                    let productInvailid = '';
+                    let productSold = [];
+                    for (let i = 0; i < items.length; i++) {
+                        // save array product sold before edit 
+                        // *********mutation productSold*********
+                        productSold.push(listProduct.find(e => e._id === items[i].productId._id).sold);
+                        sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                        productSold[i][sizeIndex].quantity += items[i].quantity;
+                        // console.log(productSold[i][sizeIndex].quantity)
+                        if (items[i].productId.size[sizeIndex].quantity < productSold[i][sizeIndex].quantity) {
+                            flag = 1;
+                            let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + 'pcs';
+                            productInvailid += productInvailid ? ' and ' + msg : msg;
+                        }
+                    }
+                    // if flag === 0 => one or some item(s) in items is not availabile
+                    if (flag) return res.status(400).json({ err: `Your order can not create! Because ${productInvailid} are not enough!` })
 
-                // 4. update order
-                const data = await orderService.updateStatus(req.params.id, status);
+                    // 2. Go to each product in order update quantity sold
+                    // if sum of size quantity === sum of sold quantity will update status to 0 (mean out of stock)
+                    for (let i = 0; i < items.length; i++) {
+                        let status = '1';
+                        let sizeQty = 0;
+                        let soldQty = 0;
+                        for (let j = 0; j < items[i].productId.size.length; j++) {
+                            sizeQty += items[i].productId.size[j].quantity;
+                            soldQty += items[i].productId.sold[j].quantity;
+                        }
+                        if (sizeQty === soldQty)
+                            status = '0';
+                        // add await to remove version error
+                        productService.update(items[i].productId._id, { sold: productSold[i], status });
+                        // await productService.update(items[i].productId._id, { sold: productSold[i], status });
+                    }
+                    //---------------------------------------------------------------------------
 
-                // 5. send mail
-                status = "Your order has been Completed";
-                if (data) {
-                    mailer.sendOrderStatusToCutomer(req.user.username, data.code, status);
-                    res.json({ msg: `Order updated successfully` });
+                    // update status and send mail
+                    const data = await orderService.updateStatus(req.params.id, status);
+                    if (data) {
+                        mailer.sendOrderStatusToCutomer(order.userId.username, data.code, "Your order is Pending!");
+                        res.json({ msg: `Order updated successfully` });
+                    }
                 }
-                else
-                    res.status(400).json({ err: 'No order matched to update!' });
+            } else if (status == -1) { //**************update to cancel status
+                console.log('---->Cancel order')
+                if (order.status == -1)
+                    return res.json({ err: 'This order has already been Canceled' });
+                if (order.status > -1) {//pending or on deliveried or complete
+                    //update status to cancel + update each product 
+                    const { items, code } = await order;
+                    // 2.1 Remove duplicate product info
+                    // *********mutation listProduct*********
+                    let listProduct = [items[0].productId];
+                    for (let i = 1; i < items.length; i++) {
+                        for (let j = 0; j < listProduct.length; j++) {
+                            if (items[i].productId._id !== listProduct[j]._id) {
+                                listProduct.push(items[i].productId);
+                            }
+                        }
+                    }
+                    // 2.2 Update product.sold
+                    let sizeIndex = 0;
+                    let productSold;
+                    for (let i = 0; i < items.length; i++) {
+                        // *********mutation productSold*********
+                        productSold = listProduct.find(e => e._id === items[i].productId._id).sold;
+                        sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                        productSold[sizeIndex].quantity -= items[i].quantity;
+                        await productService.update(items[i].productId._id, { sold: productSold, status: 1 });
+                    }
+                    // 2.3 update status and send mail
+                    const data = await orderService.updateStatus(req.params.id, status);
+                    if (data) {
+                        mailer.sendOrderStatusToCutomer(order.userId.username, data.code, "Your order has been Cancelled!");
+                        res.json({ msg: `Order updated successfully` });
+                    }
+                }
             }
-            else {
-                const data = await orderService.updateStatus(req.params.id, status);
-                status = status == -1 ? "Your order has been Cancelled" : status == 2 ? "Your order is being Delivered" : "Your order is being Processed";
-                if (data) {
-                    mailer.sendOrderStatusToCutomer(req.user.username, data.code, status);
-                    res.json({ msg: `Order updated successfully` });
+            else {//**************update to delivery or complete status
+                console.log('---->delivery or complete order')
+                if (order.status >= 0) {//pending or delivery or complete
+                    //update status
+                    const data = await orderService.updateStatus(req.params.id, status);
+                    status = status == 1 ? "Your order has been Completed" : "Your order is being Delivered";
+                    if (data) {
+                        mailer.sendOrderStatusToCutomer(order.userId.username, data.code, status);
+                        res.json({ msg: `Order updated successfully` });
+                    }
+                } else {//cancel
+                    //update status to pending / delivery / completed + update each product 
+                    //---------------------------------------------------------------------------
+                    const { items } = order;
+                    // 1.1 Remove duplicate product info
+                    // *********mutation listProduct*********
+                    let listProduct = [items[0].productId];
+                    for (let i = 1; i < items.length; i++) {
+                        for (let j = 0; j < listProduct.length; j++) {
+                            if (items[i].productId._id !== listProduct[j]._id) {
+                                listProduct.push(items[i].productId);
+                            }
+                        }
+                    }
+                    let sizeIndex = 0;
+                    let flag = 0;
+                    let productInvailid = '';
+                    let productSold = [];
+                    for (let i = 0; i < items.length; i++) {
+                        // save array product sold before edit 
+                        // *********mutation productSold*********
+                        productSold.push(listProduct.find(e => e._id === items[i].productId._id).sold);
+                        sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                        productSold[i][sizeIndex].quantity += items[i].quantity;
+                        // console.log(productSold[i][sizeIndex].quantity)
+                        if (items[i].productId.size[sizeIndex].quantity < productSold[i][sizeIndex].quantity) {
+                            flag = 1;
+                            let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + 'pcs';
+                            productInvailid += productInvailid ? ' and ' + msg : msg;
+                        }
+                    }
+                    // if flag === 0 => one or some item(s) in items is not availabile
+                    if (flag) return res.status(400).json({ err: `Your order can not create! Because ${productInvailid} are not enough!` })
+
+                    // 2. Go to each product in order update quantity sold
+                    // if sum of size quantity === sum of sold quantity will update status to 0 (mean out of stock)
+                    for (let i = 0; i < items.length; i++) {
+                        let status = '1';
+                        let sizeQty = 0;
+                        let soldQty = 0;
+                        for (let j = 0; j < items[i].productId.size.length; j++) {
+                            sizeQty += items[i].productId.size[j].quantity;
+                            soldQty += items[i].productId.sold[j].quantity;
+                        }
+                        if (sizeQty === soldQty)
+                            status = '0';
+                        // add await to remove version error
+                        productService.update(items[i].productId._id, { sold: productSold[i], status });
+                        // await productService.update(items[i].productId._id, { sold: productSold[i], status });
+                    }
+                    //---------------------------------------------------------------------------
+                    //update status and send mail
+                    const data = await orderService.updateStatus(req.params.id, status);
+                    status = status == 1 ? "Your order has been Completed" : "Your order is being Delivered";
+                    if (data) {
+                        mailer.sendOrderStatusToCutomer(order.userId.username, data.code, status);
+                        res.json({ msg: `Order updated successfully` });
+                    }
                 }
-                else
-                    res.status(400).json({ err: 'No order matched to update!' });
             }
         }
         catch (err) {
