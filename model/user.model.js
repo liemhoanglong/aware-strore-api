@@ -18,6 +18,8 @@ const usersSchema = new mongoose.Schema({
         required: true,
         default: ""
     },
+    phone: String,
+    address: String,
     isLocalLogin: {
         type: Boolean,
         default: true
