@@ -30,8 +30,46 @@ module.exports = {
                 return res.status(400).json({ err: 'Your cart is empty!' });
             const { feeShipping, phone, address, note } = req.body;
 
-            //Cal totalPriceRaw
-            //Add price each product
+            // 1. Before create order must to check each product in order is availability in stock
+            let flag = 1;
+            let productInvailid = '';
+            let productSold = [];
+            for (let i = 0; i < cart.length; i++) {
+                let sizeIndex = cart[i].productId.size.findIndex((element) => element.name === cart[i].size);
+                if (cart[i].productId.size[sizeIndex].quantity - cart[i].productId.sold[sizeIndex].quantity < cart[i].quantity) {
+                    flag = 0;
+                    let msg = cart[i].productId.name + ' - (' + cart[i].size + ') - (' + cart[i].color.name + ') - x ' + cart[i].quantity + ' pcs';
+                    productInvailid += productInvailid ? ' and ' + msg : msg;
+                }
+                // save array product sold before edit 
+                // *********mutation*********
+                productSold[i] = cart[i].productId.sold;
+                // console.log(productSold[i])
+                // edit only the sizeIndex in array product sold
+                productSold[i][sizeIndex].quantity += cart[i].quantity;
+                // console.log('--------------------+++++++++++++--------------------')
+                // console.log(productSold[i])
+            }
+            // if flag === 0 => one or some item(s) in cart is not availabile
+            if (!flag) return res.status(400).json({ err: `Your order can not create! Because ${productInvailid} are not enough!` })
+
+            // 2. Go to each product in order update quantity sold
+            // if sum of size quantity === sum of sold quantity will update status to 0 (mean out of stock)
+            for (let i = 0; i < cart.length; i++) {
+                let status = '1';
+                let sizeQty = 0;
+                let soldQty = 0;
+                for (let j = 0; j < cart[i].productId.size.length; j++) {
+                    sizeQty += cart[i].productId.size[j].quantity;
+                    soldQty += cart[i].productId.sold[j].quantity;
+                }
+                if (sizeQty === soldQty)
+                    status = '0';
+                productService.update(cart[i].productId._id, { sold: productSold[i], status });
+            }
+
+            // 3. Create order
+            // 3.1. Add price each product and calc totalPriceRaw
             let totalPriceRaw = 0;
             // let totalProducts = 0;
             if (cart && cart.length > 0) {
@@ -42,12 +80,10 @@ module.exports = {
                     // totalProducts += cart[i].quantity;
                 }
             }
-
-            //Cal totalPrice with feeShipping
+            // 3.2. Calc totalPrice with feeShipping
             totalPrice = totalPriceRaw + feeShipping;
-
-            //save to order 
-            let orderedDate = new Date()
+            // 3.3. Save to order 
+            let orderedDate = new Date();
             order = { feeShipping, totalPrice, phone, address, note, orderedDate };
             order.userId = req.user._id;
             order.items = cart;
@@ -84,6 +120,8 @@ module.exports = {
                     </table>
                     <hr>`;
                 }
+
+                // html body;
                 let content = `<center><h1>Thanks for your order #${data.code}</h1></center>
                 <h2>Hello, ${req.user.username} 👋👋👋<br/></h2>
                 <h3>Your order has been received and is being processed.</h3>
@@ -123,7 +161,8 @@ module.exports = {
                 </table>  
                 <hr>
                 <h3>🧾&nbsp;Order Details</h3>
-                ${items}`; // html body;
+                ${items}`;
+
                 mailer.sendNewOrderToCutomer(req.user.username, content);
                 mailer.sendNewOrderToAdmin(data.code);
                 res.status(201).json({ data });
@@ -137,15 +176,29 @@ module.exports = {
     },
     cancelOrder: async (req, res) => {
         try {
-            const data = await orderService.cancelOrder(req.user._id, req.params.id);
-            if (data === 1)
+            // 1. Update status order to -1 
+            // 2. Update product.sold
+            const orderData = orderService.getOne(req.params.id);
+            const order = await orderService.cancelOrder(req.user._id, req.params.id);
+            if (order === 1)
                 res.json({ err: 'Your order has been Completed!' });
-            if (data === -1)
+            if (order === -1)
                 res.json({ err: 'Your order has been Cancelled!' });
-            else if (data) {
-                mailer.sendOrderStatusToCutomer(req.user.username, data.code, "Your order has been Cancelled");
-                mailer.sendOrderCancelToAdmin(data.code, "has been canceled by customer");
-                res.json({ data });
+            else if (order) {
+                const { items, code } = await orderData;
+                let sizeIndex = 0;
+                let productSold = [];
+                for (let i = 0; i < items.length; i++) {
+                    // *********mutation*********
+                    productSold[i] = items[i].productId.sold;
+                    sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                    productSold[i][sizeIndex].quantity -= items[i].quantity;
+                    productService.update(items[i].productId._id, { sold: productSold[i], status: 1 });
+                }
+                //send mail
+                mailer.sendOrderStatusToCutomer(req.user.username, code, "Your order has been Cancelled");
+                mailer.sendOrderCancelToAdmin(code, "  been canceled by customer");
+                res.json({ order });
             }
             else
                 res.status(400).json({ err: 'Can not find your order!' });
@@ -158,12 +211,11 @@ module.exports = {
     updateStatus: async (req, res) => {
         try {
             let status = req.body.status
-            //before update status = 1 (Completed) must to check each product in order is availability in stock
-            //after update status = 1 (Completed) must go to each product in order update sold
-            if (status == 1) {
+            //before update status = 0 (pending) must to check each product in order is availability in stock
+            //after update status = 0 (pending) must go to each product in order update sold
+            if (status == 0) {
                 // 1. Check each product in order is availability
                 const order = await orderService.getOne(req.params.id);
-
                 // 1.1. Check order is Completed?
                 // console.log(order.status)
                 if (order.status === 1) return res.json({ err: 'Your order has been Completed' });
@@ -173,32 +225,37 @@ module.exports = {
                 let flag = 1;
                 let productInvailid = '';
                 let productSold = [];
+                let sizeIndex = 0;
                 for (let i = 0; i < items.length; i++) {
-                    let sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
+                    sizeIndex = items[i].productId.size.findIndex((element) => element.name === items[i].size);
                     // let sizeIndex = items[i].size === 'S' ? 0 : items[i].size === 'M' ? 1 : 2;
                     if (items[i].productId.size[sizeIndex].quantity - items[i].productId.sold[sizeIndex].quantity < items[i].quantity) {
                         flag = 0;
-                        let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + ' pcs';
+                        let msg = items[i].productId.name + ' - (' + items[i].size + ') - (' + items[i].color.name + ') - x ' + items[i].quantity + 'pcs';
                         productInvailid += productInvailid ? ', ' + msg : msg;
                     }
                     // save array product sold before edit
                     productSold[i] = items[i].productId.sold;
                     // console.log(productSold[i])
-                    // edit only the size index in array product sold
-                    productSold[i][sizeIndex].quantity = items[i].quantity;
+                    // edit only the sizeIndex in array product sold
+                    productSold[i][sizeIndex].quantity += items[i].quantity;
                     // console.log('--------------------+++++++++++++--------------------')
                     // console.log(productSold[i])
                 }
 
-                // 2. if flag eq 1 of item is not availabile return
+                // 2. if flag === 0 one or some of item(s) is not availabile
                 if (!flag) return res.status(400).json({ err: `Your order can not completed cause "${productInvailid}" not enough!` })
 
                 // 3. update each product.sold in order
                 for (let i = 0; i < items.length; i++) {
                     let status = '1';
-                    // console.log(items[i].productId.size[0].quantity + items[i].productId.size[1].quantity + items[i].productId.size[2].quantity)
-                    // console.log(items[i].productId.sold[0].quantity + items[i].productId.sold[1].quantity + items[i].productId.sold[2].quantity)
-                    if (items[i].productId.size[0].quantity + items[i].productId.size[1].quantity + items[i].productId.size[2].quantity === items[i].productId.sold[0].quantity + items[i].productId.sold[1].quantity + items[i].productId.sold[2].quantity)
+                    let sizeQty = 0;
+                    let soldQty = 0;
+                    for (let j = 0; j < items[i].productId.size.length; j++) {
+                        sizeQty += items[i].productId.size[j].quantity;
+                        soldQty += items[i].productId.sold[j].quantity;
+                    }
+                    if (sizeQty === soldQty)
                         status = '0';
                     productService.update(items[i].productId._id, { sold: productSold[i], status });
                 }

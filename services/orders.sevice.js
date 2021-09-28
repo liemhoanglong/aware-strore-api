@@ -106,7 +106,6 @@ module.exports = {
 		let temp = await orderModel.findById(id);
 		if (JSON.stringify(temp.userId) === JSON.stringify(userId)) {
 			//need to check this is your order is complete or cancel
-			console.log(temp.status)
 			if (temp.status === 1)
 				return 1;
 			if (temp.status === -1)

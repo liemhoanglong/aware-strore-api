@@ -13,6 +13,8 @@ module.exports = {
         return res.json({
             name: req.user.name,
             username: req.user.username,
+            phone: req.user.phone,
+            address: req.user.address,
             isAdmin: req.user.isAdmin,
             isBlock: req.user.isBlock,
             isLocalLogin: req.user.isLocalLogin,
@@ -77,7 +79,7 @@ module.exports = {
         })(req, res);
     },
     register: async (req, res) => {
-        const { username, name, password } = req.body;
+        const { username, name, password, phone, address } = req.body;
         // check params
         if (!username || !name || !password) {
             res.status(400).json({
@@ -88,14 +90,12 @@ module.exports = {
         if (currentUsername) {//check username is exist
             return res.status(400).json({ err: 'This username already exists!' });
         }
-
         const currentUser = await userService.getUserByName(name);
         if (currentUser) {//check username is exist
             return res.status(400).json({ err: 'This name already exists!' });
         }
-
         try {
-            const user = await userService.create(username, name, password);
+            const user = await userService.create(username, name, password, phone, address);
             res.status(201).json({ msg: 'Register success!', username: user.username });
         } catch (err) {
             console.log(err);
@@ -104,14 +104,14 @@ module.exports = {
     },
     update: async (req, res) => {
         try {
-            const user = await userService.update(req.body, req.user.username);
+            const user = await userService.update(req.body, req.user);
             if (user === 0)
                 res.json({ err: 'This username does not exists!' });
             else {
                 // let err = ''
                 // if (req.user.username === user.username || req.user.name === user.name)
                 //     err = 'Can not update user. Name/Email exists!';
-                res.json({ name: user.name, username: user.username });
+                res.json({ name: user.name, username: user.username, phone: user.phone, address: user.address });
             }
         } catch (err) {
             console.log(err);
