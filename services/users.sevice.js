@@ -16,32 +16,44 @@ module.exports = {
 	getUserByName: (name) => {
 		return User.findOne({ name });
 	},
-	create: async (username, name, password) => {
+	create: async (username, name, password, phone, address) => {
 		const saltRound = 10;
 		const salt = bcrypt.genSaltSync(saltRound);
 		const passwordHash = bcrypt.hashSync(password, salt);
 		const newUser = new User({
 			username,
 			name,
-			password: passwordHash
+			password: passwordHash,
+			phone,
+			address,
 		});
 		return await newUser.save();
 	},
-	update: async (userInfo, username) => {
+	update: async (userInfo, user) => {
 		//check username is exist
-		let userNow = User.findOne({ username });// find user now
-		let userWithUsername = User.findOne({ username: userInfo.username });// find user with username
-		let userWithName = User.findOne({ name: userInfo.name });// find user with name
+		let userNow = User.findOne({ username: user.username });// find user now
+		let checkUsername = 0;
+		let userWithUsername = 0;
+		let checkName = 0;
+		let userWithName = 0;
+		if (userInfo.username !== user.username) {
+			userWithUsername = User.findOne({ username: userInfo.username });// find user with username
+		}
+		if (userInfo.name !== user.name) {
+			userWithName = User.findOne({ name: userInfo.name });// find user with name
+		}
 		let updateUser = await userNow;
-		let checkUsername = await userWithUsername;
-		let checkName = await userWithName;
+		checkUsername = await userWithUsername;
+		checkName = await userWithName;
 		if (userNow) {
-			if (!checkUsername) {
+			if (!checkUsername)
 				updateUser.username = userInfo.username;
-			}
-			if (!checkName) {
+			if (!checkName)
 				updateUser.name = userInfo.name;
-			}
+			if (userInfo.phone)
+				updateUser.phone = userInfo.phone;
+			if (userInfo.address)
+				updateUser.address = userInfo.address;
 			return await updateUser.save();
 		} else return 0;
 	},
