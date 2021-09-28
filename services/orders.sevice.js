@@ -96,7 +96,7 @@ module.exports = {
 				path: 'color',
 				model: 'color',
 			}]
-		});
+		}).populate('userId');
 	},
 	create: async (data) => {
 		const temp = new orderModel(data);
