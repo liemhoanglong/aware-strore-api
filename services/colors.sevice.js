@@ -2,7 +2,7 @@ const colorModel = require('../model/color.model');
 
 module.exports = {
 	getAll: () => {
-		let res = colorModel.find();
+		let res = colorModel.find().sort('name');
 		return res
 	},
 	getOne: (id) => {

@@ -9,6 +9,9 @@ module.exports = {
 	getOne: (id) => {
 		return res = productModel.findById(id).populate('brand colors catelist categroup');
 	},
+	getOneByAdmin: (id) => {
+		return res = productModel.findById(id);
+	},
 	getProductsWithConditions: async (query) => {
 		const initQuery = {
 			page: 1,

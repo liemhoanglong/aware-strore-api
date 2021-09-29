@@ -19,6 +19,10 @@ module.exports = {
         const data = await productService.getOne(req.params.id);
         res.json({ data });
     },
+    getOneByAdmin: async (req, res) => {
+        const data = await productService.getOneByAdmin(req.params.id);
+        res.json({ data });
+    },
     create: async (req, res) => {
         try {
             console.log(req.body)

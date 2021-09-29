@@ -96,7 +96,7 @@ module.exports = {
 				path: 'color',
 				model: 'color',
 			}]
-		}).populate('userId');
+		}).populate('userId', 'username');
 	},
 	create: async (data) => {
 		const temp = new orderModel(data);

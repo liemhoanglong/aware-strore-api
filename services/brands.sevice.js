@@ -2,7 +2,7 @@ const brandModel = require('../model/brand.model');
 
 module.exports = {
 	getAll: () => {
-		let res = brandModel.find();
+		let res = brandModel.find().sort('name');
 		return res
 	},
 	getOne: (id) => {

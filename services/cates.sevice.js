@@ -6,6 +6,12 @@ module.exports = {
 		// .populate({ path: "belongCategroup" });
 		return res
 	},
+	getAllByAdmin: () => {
+		let res = cateModel.find()
+			.populate({ path: "belongCategroup belongCatelist" })
+			.sort('name');
+		return res
+	},
 	getByCateGroup: (id) => {
 		let res = cateModel.find()
 			.populate({ path: "belongCategroup", match: { _id: id } });
