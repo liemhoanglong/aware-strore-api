@@ -5,6 +5,11 @@ module.exports = {
 		return categroupModel.find()
 		// .populate({ path: "belongCatelist" });
 	},
+	getAllByAdmin: () => {
+		return categroupModel.find()
+			.populate({ path: "belongCatelist" })
+			.sort('name');
+	},
 	getOne: (id) => {
 		return res = categroupModel.findById(id)
 		// .populate({ path: "belongCatelist" });
