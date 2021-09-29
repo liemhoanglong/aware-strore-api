@@ -11,7 +11,7 @@ module.exports = {
     },
     create: async (req, res) => {
         try {
-            const data = await colorService.create(req.body.name);
+            const data = await colorService.create(req.body);
             res.status(201).json({ data });
         }
         catch (err) {
@@ -21,7 +21,7 @@ module.exports = {
     },
     update: async (req, res) => {
         try {
-            const data = await colorService.update(req.params.id, req.body.name);
+            const data = await colorService.update(req.params.id, req.body);
             if (data)
                 res.json({ data });
             else
