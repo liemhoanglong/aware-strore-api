@@ -6,6 +6,7 @@ const cateController = require('../controllers/cates.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', cateController.getAll);
+router.get('/admin', cateController.getAllByAdmin);
 router.get('/by-group/:id', cateController.getByCateGroup);
 router.get('/by-list-and-group/:catelist/:categroup', cateController.getByCategroupAndCatelist);
 router.get('/by-list/:id', cateController.getByCatelist);

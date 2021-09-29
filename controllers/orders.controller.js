@@ -51,10 +51,11 @@ module.exports = {
                 productSold.push(listProduct.find(e => e._id === cart[i].productId._id).sold);
                 sizeIndex = cart[i].productId.size.findIndex((element) => element.name === cart[i].size);
                 productSold[i][sizeIndex].quantity += cart[i].quantity;
-                // console.log(productSold[i][sizeIndex].quantity)
+                console.log(cart[i].productId.size[sizeIndex].quantity)
+                console.log(cart[i].productId.sold[sizeIndex].quantity)
                 if (cart[i].productId.size[sizeIndex].quantity < productSold[i][sizeIndex].quantity) {
                     flag = 1;
-                    let msg = cart[i].productId.name + ' - (' + cart[i].size + ') - (' + cart[i].color.name + ') - x ' + cart[i].quantity + 'pcs';
+                    let msg = cart[i].productId.name + ' - (' + cart[i].size + ') in Stock have: x ' + (cart[i].productId.size[sizeIndex].quantity - cart[i].productId.sold[sizeIndex].quantity) + 'pcs';
                     productInvailid += productInvailid ? ' and ' + msg : msg;
                 }
             }
@@ -237,6 +238,7 @@ module.exports = {
             //before update status = 0 (pending) must to check each product in order is availability in stock
             //after update status = 0 (pending) must go to each product in order update sold
             const order = await orderService.getOne(req.params.id);
+            console.log(order.userId)
             //**************update to pending status
             if (status == 0) {
                 console.log('---->Pending order')
