@@ -120,7 +120,7 @@ module.exports = {
                                         <span style="font-size:14px"> ${cart[i].productId.name + ' - ' + cart[i].size + ' - ' + cart[i].color.name}</span>
                                     </div>
                                     <div class="m_6055587387245089954product-productInfo-price">
-                                        <span style="font-size:14px; color:red"><b>$ ${cart[i].productId.price + '.00'}</b></span>
+                                        <span style="font-size:14px; color:red"><b>$ ${cart[i].productId.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</b></span>
                                     </div>
                                     <div class="m_6055587387245089954product-productInfo-subInfo">
                                         <span style="font-size:14px"><b>Quantity: ${cart[i].quantity}</b></span>
@@ -158,15 +158,15 @@ module.exports = {
                         </tr>
                         <tr>
                             <td valign="top" style="color:#0f146d;font-weight:bold">Subtotal:</td>
-                            <td valign="top">${totalPriceRaw + '.00'}</td>
+                            <td valign="top">${totalPriceRaw.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
                         </tr>
                         <tr>
                             <td valign="top" style="color:#0f146d;font-weight:bold">Fee Shipping:</td>
-                            <td valign="top">${feeShipping > 0 ? feeShipping + '.00' : 'Free'}</td>
+                            <td valign="top">${feeShipping > 0 ? feeShipping.toLocaleString('en-US', { style: 'currency', currency: 'USD' }) : 'Free'}</td>
                         </tr>
                         <tr>
                             <td valign="top" style="color:#0f146d;font-weight:bold">Total Price:</td>
-                            <td valign="top" style="color:##f27c24;font-weight:bold">${totalPrice + '.00'}</td>
+                            <td valign="top" style="color:##f27c24;font-weight:bold">${totalPrice.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</td>
                         </tr>
                     </tbody>
                 </table>  

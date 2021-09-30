@@ -42,7 +42,7 @@ module.exports = {
 		})
 		// .populate('color brand'); // get color name and brand name
 		if (executeQuery.size)//check quantity > 0
-			res = res.find({ 'size': { $elemMatch: { name: executeQuery.size, quantity: { $gt: 0 } } } });
+			res = res.find({ 'size': { $elemMatch: { name: executeQuery.size } } });
 		if (executeQuery.brand)
 			res = res.find({ brand: executeQuery.brand });
 		if (executeQuery.color) {
