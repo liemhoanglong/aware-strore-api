@@ -117,10 +117,10 @@ module.exports = {
                                 </td>
                                 <td style="width:60%">
                                     <div class="m_6055587387245089954product-productInfo-name">
-                                        <span style="font-size:14px"> ${cart[i].productId.name + ' - ' + cart[i].size + ' - ' + cart[i].color.name}</span>
+                                        <span style="font-size:14px">${cart[i].productId.name + ' - ' + cart[i].size + ' - ' + cart[i].color.name}</span>
                                     </div>
                                     <div class="m_6055587387245089954product-productInfo-price">
-                                        <span style="font-size:14px; color:red"><b>$ ${cart[i].productId.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</b></span>
+                                        <span style="font-size:14px; color:red"><b>${cart[i].productId.price.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}</b></span>
                                     </div>
                                     <div class="m_6055587387245089954product-productInfo-subInfo">
                                         <span style="font-size:14px"><b>Quantity: ${cart[i].quantity}</b></span>
