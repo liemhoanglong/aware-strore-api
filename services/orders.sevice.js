@@ -3,7 +3,7 @@ const escapeRegex = require('../utils/escapseRegex');
 
 module.exports = {
 	getAll: () => {
-		let res = orderModel.find();
+		let res = orderModel.find().sort('orderedDate');
 		return res
 	},
 	getOrdersWithConditionsAdmin: async (query) => {
