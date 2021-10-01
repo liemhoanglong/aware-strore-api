@@ -14,7 +14,7 @@ module.exports = {
         });
 
         //url app user
-        let url = "https://todo-list-api0.herokuapp.com/";
+        let url = "https://aware-store.vercel.app/";
 
         // send mail with defined transport object
         let info = await transporter.sendMail({
@@ -62,12 +62,13 @@ module.exports = {
                 pass: process.env.PASS_GMAIL,
             },
         });
+        let url = "https://aware-store-admin.vercel.app/app/orders?name=";
         // send mail with defined transport object
         let info = await transporter.sendMail({
             from: '"Aware store" <awarestore@gmail.com>', // sender address
             to: "liemhoanglong@gmail.com", // list of receivers
             subject: "New order", // Subject line
-            html: `<center><h1>You have a new order #${orderId}</h1></center><h2>Hello, admin<br/>Please check your order list now!</h2>`, // html body
+            html: `<center><h1>You have a new order #${orderId}</h1></center><h2>Hello, admin<br/>Please check your order list <a href="${url + orderId}">here</a>!</h2>`, // html body
         });
     },
     sendOrderStatusToCutomer: async (email, orderId, status) => {
