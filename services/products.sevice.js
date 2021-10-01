@@ -6,6 +6,10 @@ module.exports = {
 		let res = productModel.find();
 		return res
 	},
+	getAllProductName: () => {
+		let res = productModel.find().select('name');
+		return res
+	},
 	getOne: (id) => {
 		return res = productModel.findById(id).populate('brand colors catelist categroup');
 	},

@@ -173,7 +173,7 @@ module.exports = {
                 <hr>
                 <h3>🧾&nbsp;Order Details</h3>
                 ${items}`;
-
+                console.log(req.user.username)
                 mailer.sendNewOrderToCutomer(req.user.username, content);
                 mailer.sendNewOrderToAdmin(data.code);
                 res.status(201).json({ msg: 'Create order successful!' });
