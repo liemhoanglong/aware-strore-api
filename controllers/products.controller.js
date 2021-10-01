@@ -5,6 +5,10 @@ module.exports = {
         const data = await productService.getAll();
         res.json({ data });
     },
+    getAllProductName: async (req, res) => {
+        const data = await productService.getAllProductName();
+        res.json(data);
+    },
     getProductsWithConditions: async (req, res) => {
         console.log(req.query)
         const data = await productService.getProductsWithConditions(req.query);

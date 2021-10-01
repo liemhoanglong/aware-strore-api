@@ -6,6 +6,7 @@ const productController = require('../controllers/products.controller');
 const router = express.Router();
 /* GET users listing. */
 router.get('/', productController.getAll);
+router.get('/name', productController.getAllProductName);
 router.get('/search', productController.getProductsWithConditions);
 router.get('/admin-search', productController.getProductsWithConditionsAdmin);
 router.get('/admin/:id', productController.getOneByAdmin);
